@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.Adam;
-
+//hi
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -79,7 +79,7 @@ public class TeleOpMain extends OpMode {
     public void loop() {
 
         /*
-         * Gamepad Controls kyuyugtyru
+         * Gamepad Controls
          */
 
         double oneLeftStickYPower = -gamepad1.left_stick_y;
