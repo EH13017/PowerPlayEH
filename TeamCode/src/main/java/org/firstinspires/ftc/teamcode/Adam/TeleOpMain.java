@@ -20,18 +20,21 @@ public class TeleOpMain extends OpMode {
     private DcMotor WheelBackRight;
 
 
-    //private DcMotor Lift;
+    private DcMotor Lift;
 
     double power = 0.6;
 
     // Claw
     private Servo Claw;
-    private boolean clawOpen = false;
+    private boolean slowModeOn = false;
     private boolean buttonIsPressed = false;
 
 
     @Override
     public void init() {
+
+        //Add Drive Mode To Telemetry
+        telemetry.addData("Drive Mode","Slow");
 
         // Initialize Wheels
         telemetry.addData("I", "Initializing Wheels");
@@ -42,27 +45,35 @@ public class TeleOpMain extends OpMode {
         WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
         WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
 
-        //Lift = hardwareMap.dcMotor.get("LiftW");
+        Lift = hardwareMap.dcMotor.get("LiftW");
 
         WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        Lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         WheelFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         WheelFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         WheelBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         WheelBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        Lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         WheelFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         WheelFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         WheelBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         WheelBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        Lift.setDirection(DcMotorSimple.Direction.FORWARD);
+
         WheelFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Initialize Claw
         Claw = hardwareMap.get(Servo.class, "Claw");
@@ -86,6 +97,8 @@ public class TeleOpMain extends OpMode {
         double oneLeftStickXPower = gamepad1.left_stick_x;
         double oneRightStickXPower = gamepad1.right_stick_x;
         boolean oneButtonA = gamepad1.a;
+        boolean upPad = gamepad1.dpad_up;
+        boolean downPad = gamepad1.dpad_down;
 
 
         /*
@@ -96,7 +109,10 @@ public class TeleOpMain extends OpMode {
         ProMotorControl(oneLeftStickYPower, oneLeftStickXPower, oneRightStickXPower);
 
         // Claw Controls
-        ToggleClaw(oneButtonA);
+        ToggleSlowMode(oneButtonA);
+
+        // Lift
+        setLift(upPad, downPad);
 
     }
 
@@ -135,33 +151,19 @@ public class TeleOpMain extends OpMode {
         WheelBackLeft.setPower(v3*power);
         WheelBackRight.setPower(v4*power);
 
-//        if(gamepad1.dpad_up) {
-//            Lift.setPower(0.63);
-//        }
-//        if(gamepad1.dpad_down){
-//            Lift.setPower(-0.37);
-//        }
-//        if(!gamepad1.dpad_up & !gamepad1.dpad_down){
-//            Lift.setPower(0.5);
-//        }
-
-        if(power == 0.9){
-            telemetry.addData("Drive Mode","Fast");
-        }
-        if(power == 0.6){
-            telemetry.addData("Drive Mode","Slow");
-        }
     }
 
-    private void ToggleClaw(boolean button) {
+    private void ToggleSlowMode(boolean button) {
         if (button && !buttonIsPressed) {
             buttonIsPressed = true;
-            if (clawOpen) {
+            if (slowModeOn) {
                 power = 0.9;
+                telemetry.addData("Drive Mode","Fast");
             } else {
                 power = 0.6;
+                telemetry.addData("Drive Mode","Slow");
             }
-            clawOpen = !clawOpen;
+            slowModeOn = !slowModeOn;
         }
 
         if (!button) {
@@ -169,6 +171,17 @@ public class TeleOpMain extends OpMode {
         }
     }
 
+    private void setLift(boolean upPad,boolean downPad){
+        if(upPad) {
+            Lift.setPower(-0.25);
+        }
+        if(downPad){
+            Lift.setPower(0.25);
+        }
+        if(!upPad && !downPad){
+            Lift.setPower(0);
+        }
+    }
     private void CloseClaw() {
         Claw.setPosition(0);
     }
