@@ -79,7 +79,7 @@ public class TeleOpMain extends OpMode {
     public void loop() {
 
         /*
-         * Gamepad Controls
+         * Gamepad Controls kyuyugtyru
          */
 
         double oneLeftStickYPower = -gamepad1.left_stick_y;
