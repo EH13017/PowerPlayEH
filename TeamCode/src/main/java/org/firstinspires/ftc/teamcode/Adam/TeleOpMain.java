@@ -26,8 +26,13 @@ public class TeleOpMain extends OpMode {
 
     // Claw
     private Servo Claw;
+    private boolean clawIsOpen = false;
+    private boolean buttonClawIsPressed = false;
+
+
+    // SlowMode
     private boolean slowModeOn = false;
-    private boolean buttonIsPressed = false;
+    private boolean buttonSlowIsPressed = false;
 
 
     @Override
@@ -97,6 +102,7 @@ public class TeleOpMain extends OpMode {
         double oneLeftStickXPower = gamepad1.left_stick_x;
         double oneRightStickXPower = gamepad1.right_stick_x;
         boolean oneButtonA = gamepad1.a;
+        boolean oneButtonB = gamepad1.b;
         boolean upPad = gamepad1.dpad_up;
         boolean downPad = gamepad1.dpad_down;
 
@@ -108,11 +114,16 @@ public class TeleOpMain extends OpMode {
         // Drive Controls
         ProMotorControl(oneLeftStickYPower, oneLeftStickXPower, oneRightStickXPower);
 
-        // Claw Controls
+        // Slow Controls
         ToggleSlowMode(oneButtonA);
+
+        // Claw Controls
+        ToggleClaw(oneButtonB);
 
         // Lift
         setLift(upPad, downPad);
+
+        telemetry.update();
 
     }
 
@@ -154,8 +165,8 @@ public class TeleOpMain extends OpMode {
     }
 
     private void ToggleSlowMode(boolean button) {
-        if (button && !buttonIsPressed) {
-            buttonIsPressed = true;
+        if (button && !buttonSlowIsPressed) {
+            buttonSlowIsPressed = true;
             if (slowModeOn) {
                 power = 0.9;
                 telemetry.addData("Drive Mode","Fast");
@@ -167,11 +178,17 @@ public class TeleOpMain extends OpMode {
         }
 
         if (!button) {
-            buttonIsPressed = false;
+            buttonSlowIsPressed = false;
+        }
+
+        if (slowModeOn) {
+            telemetry.addData("Drive Mode","Fast");
+        } else {
+            telemetry.addData("Drive Mode","Slow");
         }
     }
 
-    private void setLift(boolean upPad,boolean downPad){
+    private void setLift(boolean upPad,boolean downPad) {
         if(upPad) {
             Lift.setPower(-0.25);
         }
@@ -182,6 +199,31 @@ public class TeleOpMain extends OpMode {
             Lift.setPower(0);
         }
     }
+
+    private void ToggleClaw(boolean button) {
+        if (button && !buttonClawIsPressed) {
+            buttonClawIsPressed = true;
+            if (clawIsOpen) {
+                OpenClaw();
+                telemetry.addData("CLAW","Open");
+            } else {
+                CloseClaw();
+                telemetry.addData("CLAW","Close");
+            }
+            clawIsOpen = !clawIsOpen;
+        }
+
+        if (!button) {
+            buttonClawIsPressed = false;
+        }
+
+        if (clawIsOpen) {
+            telemetry.addData("CLAW","Open");
+        } else {
+            telemetry.addData("CLAW","Close");
+        }
+    }
+
     private void CloseClaw() {
         Claw.setPosition(0);
     }
