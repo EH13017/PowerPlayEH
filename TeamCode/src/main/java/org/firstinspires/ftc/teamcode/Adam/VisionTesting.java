@@ -12,8 +12,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-@TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
-@Disabled
+@TeleOp(name = "Vision Test", group = "Concept")
+//@Disabled
 public class VisionTesting extends LinearOpMode {
 
     /*

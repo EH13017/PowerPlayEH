@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Comp;
+package org.firstinspires.ftc.teamcode.Adam;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -19,6 +19,11 @@ public class TeleOpMain extends OpMode {
     private DcMotor WheelBackLeft;
     private DcMotor WheelBackRight;
 
+
+    //private DcMotor Lift;
+
+    double power = 0.6;
+
     // Claw
     private Servo Claw;
     private boolean clawOpen = false;
@@ -37,6 +42,8 @@ public class TeleOpMain extends OpMode {
         WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
         WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
 
+        //Lift = hardwareMap.dcMotor.get("LiftW");
+
         WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -47,10 +54,10 @@ public class TeleOpMain extends OpMode {
         WheelBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         WheelBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        WheelFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        WheelFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        WheelBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        WheelBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        WheelFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        WheelFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        WheelBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        WheelBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         WheelFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -104,7 +111,7 @@ public class TeleOpMain extends OpMode {
     //******************************************************************
     private void ProMotorControl(double left_stick_y, double left_stick_x, double right_stick_x) {
         double powerLeftY = -left_stick_y;  // DRIVE : Backward -1 <---> 1 Forward
-        double powerLeftX = left_stick_x;   // STRAFE:     Left -1 <---> 1 Right
+        double powerLeftX = left_stick_x*-1;   // STRAFE:     Left -1 <---> 1 Right
         double powerRightX = -right_stick_x; // ROTATE:     Left -1 <---> 1 Right
 
         double r = Math.hypot(powerLeftX, powerLeftY);
@@ -115,19 +122,44 @@ public class TeleOpMain extends OpMode {
         final double v3 = r * Math.sin(robotAngle) + leftX;
         final double v4 = r * Math.cos(robotAngle) - leftX;
 
-        WheelFrontLeft.setPower(v1*0.7);
-        WheelFrontRight.setPower(v2*0.7);
-        WheelBackLeft.setPower(v3*0.7);
-        WheelBackRight.setPower(v4*0.7);
+        telemetry.addData("Magnus Is Ready","");
+
+
+        telemetry.addData("Wheel Front Left",v1*power);
+        telemetry.addData("Wheel Front Right",v2*power);
+        telemetry.addData("Wheel Back Left",v3*power);
+        telemetry.addData("Wheel Back Right",v4*power);
+
+        WheelFrontLeft.setPower(v1*power);
+        WheelFrontRight.setPower(v2*power);
+        WheelBackLeft.setPower(v3*power);
+        WheelBackRight.setPower(v4*power);
+
+//        if(gamepad1.dpad_up) {
+//            Lift.setPower(0.63);
+//        }
+//        if(gamepad1.dpad_down){
+//            Lift.setPower(-0.37);
+//        }
+//        if(!gamepad1.dpad_up & !gamepad1.dpad_down){
+//            Lift.setPower(0.5);
+//        }
+
+        if(power == 0.9){
+            telemetry.addData("Drive Mode","Fast");
+        }
+        if(power == 0.6){
+            telemetry.addData("Drive Mode","Slow");
+        }
     }
 
     private void ToggleClaw(boolean button) {
         if (button && !buttonIsPressed) {
             buttonIsPressed = true;
             if (clawOpen) {
-                CloseClaw();
+                power = 0.9;
             } else {
-                OpenClaw();
+                power = 0.6;
             }
             clawOpen = !clawOpen;
         }
