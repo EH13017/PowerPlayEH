@@ -229,6 +229,6 @@ public class TeleOpMain extends OpMode {
     }
 
     private void OpenClaw() {
-        Claw.setPosition(0.5);
+        Claw.setPosition(0.4);
     }
 }
