@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.Lessons;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+@Disabled
 @TeleOp(name = "Touch Sensors", group = "Lessons")
 public class Lesson02_TouchSensors extends OpMode {
 

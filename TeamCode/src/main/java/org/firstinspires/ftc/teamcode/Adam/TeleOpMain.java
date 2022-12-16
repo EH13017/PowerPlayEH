@@ -102,9 +102,9 @@ public class TeleOpMain extends OpMode {
         double oneLeftStickXPower = gamepad1.left_stick_x;
         double oneRightStickXPower = gamepad1.right_stick_x;
         boolean oneButtonA = gamepad1.a;
-        boolean oneButtonB = gamepad1.b;
-        boolean upPad = gamepad1.dpad_up;
-        boolean downPad = gamepad1.dpad_down;
+        boolean twoButtonA = gamepad2.a;
+        boolean twoUpPad = gamepad2.dpad_up;
+        boolean twoDownPad = gamepad2.dpad_down;
 
 
         /*
@@ -118,10 +118,10 @@ public class TeleOpMain extends OpMode {
         ToggleSlowMode(oneButtonA);
 
         // Claw Controls
-        ToggleClaw(oneButtonB);
+        ToggleClaw(twoButtonA);
 
         // Lift
-        setLift(upPad, downPad);
+        setLift(twoUpPad, twoDownPad);
 
         telemetry.addData("Claw Position",Claw.getPosition());
 

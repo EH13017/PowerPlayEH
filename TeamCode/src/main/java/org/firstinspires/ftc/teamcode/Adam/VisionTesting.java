@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
 @TeleOp(name = "Vision Test", group = "Concept")
-//@Disabled
+@Disabled
 public class VisionTesting extends LinearOpMode {
 
     /*

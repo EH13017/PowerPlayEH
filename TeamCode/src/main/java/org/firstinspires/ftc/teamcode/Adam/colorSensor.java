@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Adam;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+@Disabled
 @TeleOp
 public class colorSensor extends LinearOpMode {
     // Define a variable for our color sensor

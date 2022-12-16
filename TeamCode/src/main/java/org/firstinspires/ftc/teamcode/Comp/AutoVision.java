@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Comp;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -7,14 +11,20 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.Interfaces.IVision;
 
 import java.util.List;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+//@Disabled
+@Autonomous(name = "Auto Vision", group = "Competition")
+public class AutoVision extends LinearOpMode {
 
-class VisionDefault implements IVision {
+    private DcMotor WheelFrontLeft;
+    private DcMotor WheelFrontRight;
+    private DcMotor WheelBackLeft;
+    private DcMotor WheelBackRight;
+
+//    private IVision _Vision;
+    private SignalZone signalIcon;
 
     private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
 
@@ -23,6 +33,14 @@ class VisionDefault implements IVision {
             "2 Bulb",
             "3 Panel"
     };
+
+    private enum SignalZone {
+        LEFT,
+        CENTER,
+        RIGHT,
+        NULL
+    }
+
     private float bestConfidence = 0;
     private String bestLabel = "null";
 
@@ -41,11 +59,110 @@ class VisionDefault implements IVision {
      */
     private TFObjectDetector tfod;
 
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        // Initialize Wheels
+        telemetry.addData("I", "Initializing Wheels");
+        telemetry.update();
+
+//        WheelFrontLeft = hardwareMap.dcMotor.get("WheelFL");
+//        WheelFrontRight = hardwareMap.dcMotor.get("WheelFR");
+//        WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
+//        WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
+//
+//        WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        WheelBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        WheelBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//        WheelFrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        WheelFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        WheelBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        WheelBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        WheelFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+//        WheelFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+//        WheelBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+//        WheelBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+//
+//        WheelFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        WheelFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+//        _Vision = new VisionDefault();
+
+        // _Vision.turnOnCamera();
+        turnOnCamera();
+
+
+
+
+        waitForStart();
+
+        while (opModeIsActive()) {      // If we've stopped the robot, stop the program
+
+            signalIcon = locateSignalIcon();
+
+//            ProMotorControl(-0.1, 0.0, 0.0);  // Backward because the robot is backward
+//            sleep(1500);
+
+            switch(signalIcon) {
+                case LEFT:
+                    telemetry.addData("Direction", "Left!");
+//                    ProMotorControl(0, 0.1, 0); // Strafe right because the robot is backward
+                    break;
+                case RIGHT:
+                    telemetry.addData("Direction", "Right!");
+//                    ProMotorControl(0, -0.1, 0); // Strafe left because the robot is backward
+                    break;
+                case CENTER:
+                    telemetry.addData("Direction", "Center!");
+                    // Stay Still
+                    break;
+                default:
+                    telemetry.addData("Direction", "Invalid Direction!");
+                    break;
+            }
+            telemetry.update();
+            sleep(100);
+
+
+
+//            ProMotorControl(0.0, 0.0, 0.0);  // Stop
+//            break; // End the program once it has finished
+        }
+
+    }
+
+    //https://ftcforum.usfirst.org/forum/ftc-technology/android-studio/6361-mecanum-wheels-drive-code-example
+    //******************************************************************
+    // Get the inputs from the controller for power [ PRO ]
+    //******************************************************************
+    private void ProMotorControl(double right_stick_y, double right_stick_x, double left_stick_x) {
+        double powerRightY = right_stick_y; // DRIVE : Backward -1 <---> 1 Forward
+        double powerRightX = right_stick_x; // STRAFE:     Left -1 <---> 1 Right
+        double powerLeftX = left_stick_x;   // ROTATE:     Left -1 <---> 1 Right
+
+        double r = Math.hypot(powerRightX, powerRightY);
+        double robotAngle = Math.atan2(powerRightY, powerRightX) - Math.PI / 4;
+        double leftX = powerLeftX;
+        final double v1 = r * Math.cos(robotAngle) + leftX;
+        final double v2 = r * Math.sin(robotAngle) - leftX;
+        final double v3 = r * Math.sin(robotAngle) + leftX;
+        final double v4 = r * Math.cos(robotAngle) - leftX;
+
+        WheelFrontLeft.setPower(v1);
+        WheelFrontRight.setPower(v2);
+        WheelBackLeft.setPower(v3);
+        WheelBackRight.setPower(v4);
+    }
+
     /**
      * Initialize the Vuforia localization engine.
      */
-    @Override
-    public void initVuforia() {
+    private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
@@ -61,11 +178,11 @@ class VisionDefault implements IVision {
     /**
      * Initialize the TensorFlow Object Detection engine.
      */
-    public void initTfod() {
+    private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.90f;
+        tfodParameters.minResultConfidence = 0.50f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 300;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -76,8 +193,7 @@ class VisionDefault implements IVision {
         // tfod.loadModelFromFile(TFOD_MODEL_FILE, LABELS);
     }
 
-    @Override
-    public void turnOnCamera() {
+    private void turnOnCamera() {
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
@@ -100,8 +216,7 @@ class VisionDefault implements IVision {
         }
     }
 
-    @Override
-    public SignalZone locateSignalIcon() {
+    private SignalZone locateSignalIcon() {
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
@@ -126,8 +241,7 @@ class VisionDefault implements IVision {
         return returnSignalZone(bestLabel);
     }
 
-    @Override
-    public SignalZone returnSignalZone(String signalIcon) {
+    private SignalZone returnSignalZone(String signalIcon) {
         if (signalIcon == LABELS[0]) {
             return SignalZone.LEFT;
         } else if (signalIcon == LABELS[1]) {
@@ -138,4 +252,5 @@ class VisionDefault implements IVision {
             return SignalZone.NULL;
         }
     }
+
 }

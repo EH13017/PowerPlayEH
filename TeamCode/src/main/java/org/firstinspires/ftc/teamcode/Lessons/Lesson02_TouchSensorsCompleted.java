@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+@Disabled
 @TeleOp(name = "Touch Sensors - Completed", group = "Lessons")
 public class Lesson02_TouchSensorsCompleted extends OpMode {
 
