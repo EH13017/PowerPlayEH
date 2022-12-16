@@ -115,11 +115,11 @@ public class AutoVision extends LinearOpMode {
             switch(signalIcon) {
                 case LEFT:
                     telemetry.addData("Direction", "Left!");
-                    ProMotorControl(0, 0.1, 0); // Strafe right because the robot is backward
+                    ProMotorControl(0, -0.1, 0); // Strafe right because the robot is backward
                     break;
                 case RIGHT:
                     telemetry.addData("Direction", "Right!");
-                    ProMotorControl(0, -0.1, 0); // Strafe left because the robot is backward
+                    ProMotorControl(0, 0.1, 0); // Strafe left because the robot is backward
                     break;
                 case CENTER:
                     telemetry.addData("Direction", "Center!");
