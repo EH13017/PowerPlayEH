@@ -50,7 +50,7 @@ public class TeleOpMain extends OpMode {
         WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
         WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
 
-        //Lift = hardwareMap.dcMotor.get("LiftW");
+        Lift = hardwareMap.dcMotor.get("LiftW");
 
         WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
