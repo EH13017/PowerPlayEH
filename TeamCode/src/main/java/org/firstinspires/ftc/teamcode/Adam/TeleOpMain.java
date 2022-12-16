@@ -83,7 +83,7 @@ public class TeleOpMain extends OpMode {
         // Initialize Claw
         Claw = hardwareMap.get(Servo.class, "Claw");
         Claw.setDirection(Servo.Direction.FORWARD);
-        Claw.setPosition(0.3);
+        CloseClaw();
 
         // Let the user know initialization is complete.
         telemetry.addData("I", "Initialization Complete!");
@@ -122,8 +122,6 @@ public class TeleOpMain extends OpMode {
 
         // Lift
         setLift(twoUpPad, twoDownPad);
-
-        telemetry.addData("Claw Position",Claw.getPosition());
 
         telemetry.update();
 
@@ -192,10 +190,10 @@ public class TeleOpMain extends OpMode {
 
     private void setLift(boolean upPad,boolean downPad) {
         if(upPad) {
-            Lift.setPower(-0.75);
+            Lift.setPower(0.75);
         }
         if(downPad){
-            Lift.setPower(0.75);
+            Lift.setPower(-0.75);
         }
         if(!upPad && !downPad){
             Lift.setPower(0);
@@ -207,10 +205,8 @@ public class TeleOpMain extends OpMode {
             buttonClawIsPressed = true;
             if (clawIsOpen) {
                 OpenClaw();
-                telemetry.addData("CLAW","Close");
             } else {
                 CloseClaw();
-                telemetry.addData("CLAW","Open");
             }
             clawIsOpen = !clawIsOpen;
         }
@@ -220,17 +216,19 @@ public class TeleOpMain extends OpMode {
         }
 
         if (clawIsOpen) {
-            telemetry.addData("CLAW","Close");
-        } else {
             telemetry.addData("CLAW","Open");
+        } else {
+            telemetry.addData("CLAW","Close");
         }
+
+        telemetry.addData("Claw Position", Claw.getPosition());
     }
 
     private void CloseClaw() {
-        Claw.setPosition(0.3);
+        Claw.setPosition(1);
     }
 
     private void OpenClaw() {
-        Claw.setPosition(1);
+        Claw.setPosition(0.3);
     }
 }

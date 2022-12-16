@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -66,30 +67,30 @@ public class AutoVision extends LinearOpMode {
         telemetry.addData("I", "Initializing Wheels");
         telemetry.update();
 
-//        WheelFrontLeft = hardwareMap.dcMotor.get("WheelFL");
-//        WheelFrontRight = hardwareMap.dcMotor.get("WheelFR");
-//        WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
-//        WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
-//
-//        WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        WheelBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        WheelBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//
-//        WheelFrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        WheelFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        WheelBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        WheelBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//        WheelFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-//        WheelFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-//        WheelBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-//        WheelBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-//
-//        WheelFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        WheelFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        WheelFrontLeft = hardwareMap.dcMotor.get("WheelFL");
+        WheelFrontRight = hardwareMap.dcMotor.get("WheelFR");
+        WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
+        WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
+
+        WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        WheelBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        WheelBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        WheelFrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        WheelFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        WheelBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        WheelBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        WheelFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        WheelFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        WheelBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        WheelBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        WheelFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        WheelFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 //        _Vision = new VisionDefault();
 
@@ -105,17 +106,20 @@ public class AutoVision extends LinearOpMode {
 
             signalIcon = locateSignalIcon();
 
-//            ProMotorControl(-0.1, 0.0, 0.0);  // Backward because the robot is backward
-//            sleep(1500);
+            ProMotorControl(0.1, 0.0, 0.0);  // Backward because the robot is backward
+            sleep(1500);
+
+            ProMotorControl(0, 0, 0); // Stop
+            sleep(3000);
 
             switch(signalIcon) {
                 case LEFT:
                     telemetry.addData("Direction", "Left!");
-//                    ProMotorControl(0, 0.1, 0); // Strafe right because the robot is backward
+                    ProMotorControl(0, 0.1, 0); // Strafe right because the robot is backward
                     break;
                 case RIGHT:
                     telemetry.addData("Direction", "Right!");
-//                    ProMotorControl(0, -0.1, 0); // Strafe left because the robot is backward
+                    ProMotorControl(0, -0.1, 0); // Strafe left because the robot is backward
                     break;
                 case CENTER:
                     telemetry.addData("Direction", "Center!");
@@ -126,12 +130,14 @@ public class AutoVision extends LinearOpMode {
                     break;
             }
             telemetry.update();
-            sleep(100);
+            sleep(3000);
 
 
 
-//            ProMotorControl(0.0, 0.0, 0.0);  // Stop
-//            break; // End the program once it has finished
+
+            ProMotorControl(0.0, 0.0, 0.0);  // Stop
+            sleep(3000);
+            break; // End the program once it has finished
         }
 
     }
