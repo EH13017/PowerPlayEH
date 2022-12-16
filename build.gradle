@@ -10,11 +10,7 @@ buildscript {
         google()
     }
     dependencies {
-<<<<<<< HEAD
-        classpath 'com.android.tools.build:gradle:7.2.0'
-=======
         classpath 'com.android.tools.build:gradle:7.2.2'
->>>>>>> 5191e38897765ab99e20cf2f2d265221a0f8f28b
     }
 }
 

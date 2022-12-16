@@ -24,7 +24,7 @@ public class VisionTesting extends LinearOpMode {
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
     //private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
-     private static final String TFOD_MODEL_FILE  = "/powerplay_eh.tflite";
+     private static final String TFOD_MODEL_FILE  = "powerplay_eh.tflite";
 
 
     private static final String[] LABELS = {

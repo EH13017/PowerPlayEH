@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.Interfaces.IVision;
+
 @Autonomous(name = "Auto Main", group = "Competition")
 public class Auto01 extends LinearOpMode {
 
@@ -12,6 +14,9 @@ public class Auto01 extends LinearOpMode {
     private DcMotor WheelFrontRight;
     private DcMotor WheelBackLeft;
     private DcMotor WheelBackRight;
+
+    private IVision _Vision;
+    private IVision.SignalZone signalIcon;
 
     /* STUFF TO CODE
      *  - Initilize
@@ -50,13 +55,38 @@ public class Auto01 extends LinearOpMode {
         WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        _Vision = new VisionDefault();
+
+        _Vision.turnOnCamera();
 
 
         waitForStart();
 
         while (opModeIsActive()) {      // If we've stopped the robot, stop the program
 
+            signalIcon = _Vision.locateSignalIcon();
+
             ProMotorControl(0.1, 0.0, 0.0);  // Forward
+            sleep(1500);
+
+            switch(signalIcon) {
+                case LEFT:
+                    telemetry.addData("Direction", "Left!");
+                    ProMotorControl(0, -0.1, 0);
+                    break;
+                case RIGHT:
+                    telemetry.addData("Direction", "Right!");
+                    ProMotorControl(0, 0.1, 0);
+                    break;
+                case CENTER:
+                    telemetry.addData("Direction", "Center!");
+                    // Stay Still
+                    break;
+                default:
+                    telemetry.addData("Direction", "Invalid Direction!");
+                    break;
+            }
+            telemetry.update();
             sleep(1500);
 
 
