@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Comp;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -15,13 +16,15 @@ import org.firstinspires.ftc.teamcode.Interfaces.IVision;
 
 import java.util.List;
 
-@Autonomous(name = "Auto Park", group = "Competition")
+@Autonomous(name = "Auto Competition", group = "Competition")
 public class AutoMain extends LinearOpMode {
 
    private DcMotor WheelFrontLeft;
    private DcMotor WheelFrontRight;
    private DcMotor WheelBackLeft;
    private DcMotor WheelBackRight;
+
+   ColorSensor color;
 
    @Override
    public void runOpMode() throws InterruptedException {
@@ -55,14 +58,71 @@ public class AutoMain extends LinearOpMode {
         WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
+        color = hardwareMap.get(ColorSensor.class, "Color");
+
       waitForStart();
 
       while (opModeIsActive()) {      // If we've stopped the robot, stop the program
 
-            ProMotorControl(0.1, 0.0, 0.0);  // Forward
-            sleep(1500);
-
+            ProMotorControl(0.05, 0.0, 0.0);  // Forward
+            sleep(2600);
             ProMotorControl(0.0, 0.0, 0.0);  // Stop
+
+           int colorValue;
+          colorValue = 0;
+
+          if(color.red()>color.green() & color.red()> color.blue()){
+               telemetry.addData("Color","Red");
+               colorValue = 1;
+               //Left
+           }
+           if(color.green()>color.red() & color.green()> color.blue()){
+               telemetry.addData("Color","Green");
+               colorValue = 2;
+               //Park
+           }
+           if(color.blue()>color.red() & color.blue()> color.green()){
+               telemetry.addData("Color","Blue");
+               colorValue = 3;
+               //Right
+           }
+
+           //sleep(3000);
+
+           //ProMotorControl(0.05, 0.0, 0.0);  // Forward
+           //sleep(1250);
+           //ProMotorControl(0.0, 0.0, 0.0);  // Stop
+
+          telemetry.addData("Red Value:",color.red());
+          telemetry.addData("Green Value:",color.green());
+          telemetry.addData("Blue Value:",color.blue());
+
+          telemetry.update();
+
+           if(colorValue == 1){
+               ProMotorControl(0.0,-0.1,0.0);
+               sleep(2150);
+               ProMotorControl(0.0, 0.0, 0.0);
+           }
+
+          if(colorValue == 2){
+              ProMotorControl(-0.1,0.0,0.0);
+              sleep(500);
+              ProMotorControl(0.0, 0.0, 0.0);
+          }
+
+          if(colorValue == 3){
+              ProMotorControl(0.0,0.1,0.0);
+              sleep(2150);
+              ProMotorControl(0.0, 0.0, 0.0);
+          }
+
+
+
+           telemetry.update();
+
+
             break; // End the program once it has finished
       }
 
