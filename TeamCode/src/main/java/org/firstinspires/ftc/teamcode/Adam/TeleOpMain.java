@@ -22,6 +22,20 @@ public class TeleOpMain extends OpMode {
 
     private DcMotor Lift;
 
+    private double positionLift = -1;
+    private double directionRotate = -1;
+
+    private final double GROUND = 0;
+    private final double LOW = 10;
+    private final double MEDIUM = 20;
+    private final double HIGH = 30;
+
+    private final double NORTH = 0;
+    private final double EAST = 10;
+    private final double SOUTH = 20;
+    private final double WEST = 30;
+
+
     double power = 0.6;
 
     // Claw
@@ -103,9 +117,14 @@ public class TeleOpMain extends OpMode {
         double oneRightStickXPower = gamepad1.right_stick_x;
         boolean oneButtonA = gamepad1.a;
         boolean twoButtonA = gamepad2.a;
+        boolean twoButtonB = gamepad2.b;
+        boolean twoButtonX = gamepad2.x;
+        boolean twoButtonY = gamepad2.y;
         boolean twoUpPad = gamepad2.dpad_up;
         boolean twoDownPad = gamepad2.dpad_down;
-
+        boolean twoLeftPad = gamepad2.dpad_left;
+        boolean twoRightPad = gamepad2.dpad_right;
+        boolean twoBack = gamepad2.back;
 
         /*
          * Do Stuff Here!
@@ -118,10 +137,21 @@ public class TeleOpMain extends OpMode {
         ToggleSlowMode(oneButtonA);
 
         // Claw Controls
-        ToggleClaw(twoButtonA);
+        //ToggleClaw(twoButtonA);
 
         // Lift
-        setLift(twoUpPad, twoDownPad);
+        //setLift(twoUpPad, twoDownPad);
+
+        //Auto Claw
+        AutoClaw(twoBack,
+                twoUpPad,
+                twoDownPad,
+                twoLeftPad,
+                twoRightPad,
+                twoButtonA,
+                twoButtonB,
+                twoButtonX,
+                twoButtonY);
 
         telemetry.update();
 
@@ -216,13 +246,73 @@ public class TeleOpMain extends OpMode {
         }
 
         if (clawIsOpen) {
-            telemetry.addData("CLAW","Open");
+            //telemetry.addData("CLAW","Open");
         } else {
-            telemetry.addData("CLAW","Close");
+            //telemetry.addData("CLAW","Close");
         }
 
         telemetry.addData("Claw Position", Claw.getPosition());
     }
+
+    private void AutoClaw(
+                          boolean backButton,
+                          boolean up,
+                          boolean down,
+                          boolean left,
+                          boolean right,
+
+                          boolean A,
+                          boolean B,
+                          boolean X,
+                          boolean Y
+    ){
+        if(A){
+            positionLift = GROUND; //Green
+        }
+        if(B){
+            positionLift = LOW; //Red
+        }
+        if(X){
+            positionLift = MEDIUM; //Blue
+        }
+        if(Y){
+            positionLift = HIGH; //Yellow
+        }
+        if(backButton && positionLift != -1){
+            positionLift = -1; //Black
+        }
+        //Direction
+        if(up && positionLift != -1){
+            directionRotate = NORTH;//North
+        }
+        if(right && positionLift != -1){
+            directionRotate = EAST;//East
+        }
+        if(down && positionLift != -1){
+            directionRotate = SOUTH;//South
+        }
+        if(left && positionLift != -1){
+            directionRotate = WEST;//West
+        }
+
+        telemetry.addData("Direction Rotate",directionRotate);
+
+        if(positionLift != -1 && directionRotate != -1){
+            //Lift And Rotate
+
+            //CODE LIGHTS Black
+
+            positionLift = -1;
+            directionRotate = -1;
+        }
+        telemetry.addData("Position Lift",positionLift);
+
+
+        telemetry.update();
+    }
+
+
+
 
     private void CloseClaw() {
         Claw.setPosition(1);

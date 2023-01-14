@@ -66,23 +66,23 @@ public class AutoMain extends LinearOpMode {
       while (opModeIsActive()) {      // If we've stopped the robot, stop the program
 
             ProMotorControl(0.05, 0.0, 0.0);  // Forward
-            sleep(2600);
+            sleep(2500);
             ProMotorControl(0.0, 0.0, 0.0);  // Stop
 
            int colorValue;
           colorValue = 0;
 
-          if(color.red()>color.green() & color.red()> color.blue()){
+          if(color.red()>color.green() & color.red()>color.blue()){
                telemetry.addData("Color","Red");
                colorValue = 1;
                //Left
            }
-           if(color.green()>color.red() & color.green()> color.blue()){
+           if(color.green()>color.red() & color.green()>color.blue()){
                telemetry.addData("Color","Green");
                colorValue = 2;
                //Park
            }
-           if(color.blue()>color.red() & color.blue()> color.green()){
+           if(color.blue()>color.red() & color.blue()>color.green()){
                telemetry.addData("Color","Blue");
                colorValue = 3;
                //Right
