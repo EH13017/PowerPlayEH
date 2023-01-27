@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Adam;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -19,21 +20,26 @@ public class TeleOpMain extends OpMode {
     private DcMotor WheelBackLeft;
     private DcMotor WheelBackRight;
 
+    // Lift
+    private DcMotorEx Lift;
+    private int heightLift = -1;
+    private final int ENCODER_COUNT_LIFT = 1120;
+    private final int GROUND = 0;
+    private final int LOW = -1000;
+    private final int MEDIUM = -1750;
+    private final int HIGH = -2400;
+    private final double MAX_LIFT_SPEED = 0.75;
+    private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT*2;
 
-    private DcMotor Lift;
+    // Turret
+    private DcMotorEx Turret;
+    private int directionRotate = -1;
+    private final int TURRET_ENCODER_COUNT = 288;
+    private final int NORTH = 0;
+    private final int EAST = TURRET_ENCODER_COUNT/4;
+    private final int SOUTH = TURRET_ENCODER_COUNT/2;
+    private final int WEST = -TURRET_ENCODER_COUNT/4;
 
-    private double positionLift = -1;
-    private double directionRotate = -1;
-
-    private final double GROUND = 0;
-    private final double LOW = 10;
-    private final double MEDIUM = 20;
-    private final double HIGH = 30;
-
-    private final double NORTH = 0;
-    private final double EAST = 10;
-    private final double SOUTH = 20;
-    private final double WEST = 30;
 
 
     double power = 0.6;
@@ -64,35 +70,35 @@ public class TeleOpMain extends OpMode {
         WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
         WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
 
-        Lift = hardwareMap.dcMotor.get("LiftW");
-
         WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         WheelBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        Lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         WheelFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         WheelFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         WheelBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         WheelBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        Lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         WheelFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         WheelFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         WheelBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         WheelBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        Lift.setDirection(DcMotorSimple.Direction.FORWARD);
 
         WheelFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // Initialize Lift
+        Lift = hardwareMap.get(DcMotorEx.class, "LiftW");
+        Lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Lift.setDirection(DcMotorSimple.Direction.FORWARD);
         Lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // Initialize Turret
+        Turret = hardwareMap.get(DcMotorEx.class, "Turret");
+        Turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Initialize Claw
         Claw = hardwareMap.get(Servo.class, "Claw");
@@ -125,6 +131,8 @@ public class TeleOpMain extends OpMode {
         boolean twoLeftPad = gamepad2.dpad_left;
         boolean twoRightPad = gamepad2.dpad_right;
         boolean twoBack = gamepad2.back;
+        boolean twoBumperLeft = gamepad2.left_bumper;
+        boolean twoBumperRight = gamepad2.right_bumper;
 
         /*
          * Do Stuff Here!
@@ -140,7 +148,7 @@ public class TeleOpMain extends OpMode {
         //ToggleClaw(twoButtonA);
 
         // Lift
-        //setLift(twoUpPad, twoDownPad);
+//        setLift(twoBumperLeft, twoBumperRight);
 
         //Auto Claw
         AutoClaw(twoBack,
@@ -218,17 +226,82 @@ public class TeleOpMain extends OpMode {
         }
     }
 
-    private void setLift(boolean upPad,boolean downPad) {
-        if(upPad) {
-            Lift.setPower(0.75);
+    private void setLift(boolean up,boolean down) {
+        if (up) {
+            Lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            Lift.setPower(MAX_LIFT_SPEED);
+            Lift.setVelocity(MAX_LIFT_VELOCITY);
         }
-        if(downPad){
-            Lift.setPower(-0.75);
+        if (down) {
+            Lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            Lift.setPower(-MAX_LIFT_SPEED);
+            Lift.setVelocity(-MAX_LIFT_VELOCITY);
         }
-        if(!upPad && !downPad){
-            Lift.setPower(0);
+        if (!up && !down) {
+            Lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            Lift.setPower(0);
+            Lift.setVelocity(0);
         }
     }
+
+    private void autoLift(int height) {
+//        // If we have pressed a button to set the position...
+//        if (setToPositionMode) {
+            // Set the target position
+            Lift.setTargetPosition(height);
+            // Switch to RUN_TO_POSITION mode
+            Lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            // Get the motor moving by setting the max velocity in ticks per second
+            Lift.setVelocity(MAX_LIFT_VELOCITY);
+//        }
+
+//        // Once the motor is finished moving to the position we have set...
+//        if (!Lift.isBusy() && setToPositionMode) {
+//            setToPositionMode = false;
+//            LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        }
+
+    }
+
+//    private void ProLiftControl(boolean levelZeroButtonPressed,
+//                                boolean levelOneButtonPressed,
+//                                boolean levelTwoButtonPressed,
+//                                boolean levelThreeButtonPressed) {
+//
+//        // Set the target position based on which button is pressed TODO: Switch statements?
+//
+//        if (levelZeroButtonPressed) {
+//            targetPos = LEVEL_ZERO;
+//            BucketIn();
+//            setToPositionMode = true;
+//        } else if (levelOneButtonPressed) {
+//            targetPos = LEVEL_ONE;
+//            setToPositionMode = true;
+//        } else if (levelTwoButtonPressed) {
+//            targetPos = LEVEL_TWO;
+//            setToPositionMode = true;
+//        } else if (levelThreeButtonPressed) {
+//            targetPos = LEVEL_THREE;
+//            setToPositionMode = true;
+//        }
+//
+//        // If we have pressed a button to set the position...
+//        if (setToPositionMode) {
+//            // Set the target position
+//            LiftMotor.setTargetPosition(targetPos);
+//            // Switch to RUN_TO_POSITION mode
+//            LiftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            // Get the motor moving by setting the max velocity in ticks per second
+//            LiftMotor.setVelocity(MAX_LIFT_VELOCITY);
+//        }
+//
+//        // Once the motor is finished moving to the position we have set...
+//        if (!LiftMotor.isBusy() && setToPositionMode) {
+//            setToPositionMode = false;
+//            LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        }
+//
+//    }
 
     private void ToggleClaw(boolean button) {
         if (button && !buttonClawIsPressed) {
@@ -254,6 +327,12 @@ public class TeleOpMain extends OpMode {
         telemetry.addData("Claw Position", Claw.getPosition());
     }
 
+    private void RotateTurret(int position) {
+        Turret.setTargetPosition(position);
+        Turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Turret.setVelocity(200);
+    }
+
     private void AutoClaw(
                           boolean backButton,
                           boolean up,
@@ -266,49 +345,81 @@ public class TeleOpMain extends OpMode {
                           boolean X,
                           boolean Y
     ){
+        // Height
         if(A){
-            positionLift = GROUND; //Green
+            heightLift = GROUND; //Green
         }
         if(B){
-            positionLift = LOW; //Red
+            heightLift = LOW; //Red
         }
         if(X){
-            positionLift = MEDIUM; //Blue
+            heightLift = MEDIUM; //Blue
         }
         if(Y){
-            positionLift = HIGH; //Yellow
+            heightLift = HIGH; //Yellow
         }
-        if(backButton && positionLift != -1){
-            positionLift = -1; //Black
+        if(backButton && heightLift != -1){
+            heightLift = -1; //Black
         }
-        //Direction
-        if(up && positionLift != -1){
+
+        // Direction
+        if(up && heightLift != -1){
             directionRotate = NORTH;//North
         }
-        if(right && positionLift != -1){
+        if(right && heightLift != -1){
             directionRotate = EAST;//East
         }
-        if(down && positionLift != -1){
+        if(down && heightLift != -1){
             directionRotate = SOUTH;//South
         }
-        if(left && positionLift != -1){
+        if(left && heightLift != -1){
             directionRotate = WEST;//West
         }
 
         telemetry.addData("Direction Rotate",directionRotate);
 
-        if(positionLift != -1 && directionRotate != -1){
-            //Lift And Rotate
+        if(heightLift != -1 && directionRotate != -1) {
+            CloseClaw();
+
+            do {
+                if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
+                    autoLift(LOW); // Lift to Low
+                } else {
+                    autoLift(heightLift); // Lift to height
+                }
+                getTurriftTelemetry();
+            } while (Lift.isBusy() && !backButton);
+
+            do {
+                if (heightLift == GROUND && (directionRotate != NORTH && directionRotate != SOUTH)) {
+                    // Do Nothing
+                } else {
+                    RotateTurret(directionRotate);
+                }
+                getTurriftTelemetry();
+            } while (Turret.isBusy() && !backButton);
+
+            do {
+                if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
+                    autoLift(GROUND); // Lift to Ground
+                }
+                getTurriftTelemetry();
+            } while (Lift.isBusy() && !backButton);
 
             //CODE LIGHTS Black
 
-            positionLift = -1;
+            heightLift = -1;
             directionRotate = -1;
         }
-        telemetry.addData("Position Lift",positionLift);
+        telemetry.addData("Position Lift", heightLift);
 
 
         telemetry.update();
+    }
+
+    private void getTurriftTelemetry() {
+        telemetry.addData("Lift Encoder", Turret.getCurrentPosition());
+        telemetry.addData("Turret Encoder", Turret.getCurrentPosition());
     }
 
 
