@@ -99,6 +99,8 @@ public class TeleOpMain extends OpMode {
         // Initialize Turret
         Turret = hardwareMap.get(DcMotorEx.class, "Turret");
         Turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Turret.setDirection(DcMotorSimple.Direction.FORWARD);
+        Turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Initialize Claw
         Claw = hardwareMap.get(Servo.class, "Claw");
@@ -145,7 +147,7 @@ public class TeleOpMain extends OpMode {
         ToggleSlowMode(oneButtonA);
 
         // Claw Controls
-        //ToggleClaw(twoButtonA);
+        ToggleClaw(twoBumperLeft);
 
         // Lift
 //        setLift(twoBumperLeft, twoBumperRight);
@@ -330,7 +332,7 @@ public class TeleOpMain extends OpMode {
     private void RotateTurret(int position) {
         Turret.setTargetPosition(position);
         Turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Turret.setVelocity(200);
+        Turret.setVelocity(TURRET_ENCODER_COUNT*2);
     }
 
     private void AutoClaw(
@@ -398,6 +400,9 @@ public class TeleOpMain extends OpMode {
                 }
                 getTurriftTelemetry();
             } while (Turret.isBusy() && !backButton);
+
+            Turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            Turret.setPower(0);
 
             do {
                 if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
