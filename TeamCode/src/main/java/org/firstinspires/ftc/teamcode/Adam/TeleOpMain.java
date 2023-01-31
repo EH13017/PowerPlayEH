@@ -49,6 +49,10 @@ public class TeleOpMain extends OpMode {
     private boolean clawIsOpen = false;
     private boolean buttonClawIsPressed = false;
 
+    private Servo Grab;
+    private boolean grabIsOpen = false;
+    private boolean buttonGrabIsPressed = false;
+
 
     // SlowMode
     private boolean slowModeOn = false;
@@ -107,6 +111,10 @@ public class TeleOpMain extends OpMode {
         Claw.setDirection(Servo.Direction.FORWARD);
         CloseClaw();
 
+        Grab = hardwareMap.get(Servo.class, "Grab");
+        Grab.setDirection(Servo.Direction.FORWARD);
+        CloseGrab();
+
         // Let the user know initialization is complete.
         telemetry.addData("I", "Initialization Complete!");
         telemetry.update();
@@ -148,6 +156,7 @@ public class TeleOpMain extends OpMode {
 
         // Claw Controls
         ToggleClaw(twoBumperLeft);
+        ToggleGrab(twoBumperRight);
 
         // Lift
 //        setLift(twoBumperLeft, twoBumperRight);
@@ -329,6 +338,30 @@ public class TeleOpMain extends OpMode {
         telemetry.addData("Claw Position", Claw.getPosition());
     }
 
+    private void ToggleGrab(boolean button) {
+        if (button && !buttonGrabIsPressed) {
+            buttonGrabIsPressed = true;
+            if (grabIsOpen) {
+                OpenGrab();
+            } else {
+                CloseGrab();
+            }
+            grabIsOpen = !grabIsOpen;
+        }
+
+        if (!button) {
+            buttonGrabIsPressed = false;
+        }
+
+        if (grabIsOpen) {
+            telemetry.addData("GRAB","Open");
+        } else {
+            telemetry.addData("GRAB","Close");
+        }
+
+        telemetry.addData("Grab Position", Grab.getPosition());
+    }
+
     private void RotateTurret(int position) {
         Turret.setTargetPosition(position);
         Turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -436,5 +469,13 @@ public class TeleOpMain extends OpMode {
 
     private void OpenClaw() {
         Claw.setPosition(0.3);
+    }
+
+    private void CloseGrab() {
+        Grab.setPosition(0);
+    }
+
+    private void OpenGrab() {
+        Grab.setPosition(0.5);
     }
 }
