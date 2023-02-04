@@ -72,23 +72,23 @@ public class AutoMain extends LinearOpMode {
            int colorValue;
           colorValue = 0;
 
-          if(color.red()>color.green() & color.red()>color.blue()){
+          if(color.red()>=color.green() & color.red()>=color.blue()){
                telemetry.addData("Color","Red");
                colorValue = 1;
                //Left
            }
-           if(color.green()>color.red() & color.green()>color.blue()){
+           if(color.green()>=color.red() & color.green()>=color.blue()){
                telemetry.addData("Color","Green");
                colorValue = 2;
                //Park
            }
-           if(color.blue()>color.red() & color.blue()>color.green()){
+           if(color.blue()>=color.red() & color.blue()>=color.green()){
                telemetry.addData("Color","Blue");
                colorValue = 3;
                //Right
            }
 
-           //sleep(3000);
+           sleep(1500);
 
            //ProMotorControl(0.05, 0.0, 0.0);  // Forward
            //sleep(1250);
@@ -100,27 +100,27 @@ public class AutoMain extends LinearOpMode {
 
           telemetry.update();
 
-           if(colorValue == 1){
-               ProMotorControl(0.0,-0.1,0.0);
-               sleep(2150);
-               ProMotorControl(0.0, 0.0, 0.0);
-           }
-
-          if(colorValue == 2){
-              ProMotorControl(-0.1,0.0,0.0);
-              sleep(500);
-              ProMotorControl(0.0, 0.0, 0.0);
-          }
-
-          if(colorValue == 3){
-              ProMotorControl(0.0,0.1,0.0);
-              sleep(2150);
-              ProMotorControl(0.0, 0.0, 0.0);
-          }
-
-
-
-           telemetry.update();
+//           if(colorValue == 1){
+//               ProMotorControl(0.0,-0.1,0.0);
+//               sleep(2150);
+//               ProMotorControl(0.0, 0.0, 0.0);
+//           }
+//
+//          if(colorValue == 2){
+//              ProMotorControl(-0.1,0.0,0.0);
+//              sleep(500);
+//              ProMotorControl(0.0, 0.0, 0.0);
+//          }
+//
+//          if(colorValue == 3){
+//              ProMotorControl(0.0,0.1,0.0);
+//              sleep(2150);
+//              ProMotorControl(0.0, 0.0, 0.0);
+//          }
+//
+//
+//
+//           telemetry.update();
 
 
             break; // End the program once it has finished

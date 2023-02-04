@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Adam;
 
+import static android.os.SystemClock.sleep;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,18 +9,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "TeleOp Main", group = "Competition")
-public class TeleOpMain extends OpMode {
+@TeleOp(name = "Claw Testing", group = "Testing")
+public class ClawTesting extends OpMode {
 
     /*
      * Declare Hardware
      */
 
-    // Wheels
-    private DcMotor WheelFrontLeft;
-    private DcMotor WheelFrontRight;
-    private DcMotor WheelBackLeft;
-    private DcMotor WheelBackRight;
 
     // Lift
     private DcMotorEx Lift;
@@ -46,53 +43,23 @@ public class TeleOpMain extends OpMode {
 
     // Claw
     private Servo Claw;
-    private boolean clawIsOpen = false;
+    private boolean clawIsOpen = true;
     private boolean buttonClawIsPressed = false;
+    private final double CLAW_CLOSE = 0.3;
+    private final double CLAW_OPEN = 0.75;
 
+    // Grabber
     private Servo Grab;
-    private boolean grabIsOpen = false;
+    private boolean grabIsOpen = true;
     private boolean buttonGrabIsPressed = false;
+    private final double GRAB_CLOSE = 0.0;
+    private final double GRAB_OPEN = 0.5;
 
-
-    // SlowMode
-    private boolean slowModeOn = false;
-    private boolean buttonSlowIsPressed = false;
 
 
     @Override
     public void init() {
 
-        //Add Drive Mode To Telemetry
-        telemetry.addData("Drive Mode","Slow");
-
-        // Initialize Wheels
-        telemetry.addData("I", "Initializing Wheels");
-        telemetry.update();
-
-        WheelFrontLeft = hardwareMap.dcMotor.get("WheelFL");
-        WheelFrontRight = hardwareMap.dcMotor.get("WheelFR");
-        WheelBackLeft = hardwareMap.dcMotor.get("WheelBL");
-        WheelBackRight = hardwareMap.dcMotor.get("WheelBR");
-
-        WheelFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        WheelFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        WheelBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        WheelBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        WheelFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        WheelFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        WheelBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        WheelBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        WheelFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        WheelFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        WheelBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        WheelBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        WheelFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        WheelFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Initialize Lift
         Lift = hardwareMap.get(DcMotorEx.class, "LiftW");
@@ -109,11 +76,11 @@ public class TeleOpMain extends OpMode {
         // Initialize Claw
         Claw = hardwareMap.get(Servo.class, "Claw");
         Claw.setDirection(Servo.Direction.FORWARD);
-        CloseClaw();
+        OpenClaw();
 
         Grab = hardwareMap.get(Servo.class, "Grab");
         Grab.setDirection(Servo.Direction.FORWARD);
-        CloseGrab();
+        OpenGrab();
 
         // Let the user know initialization is complete.
         telemetry.addData("I", "Initialization Complete!");
@@ -148,12 +115,6 @@ public class TeleOpMain extends OpMode {
          * Do Stuff Here!
          */
 
-        // Drive Controls
-        ProMotorControl(oneLeftStickYPower, oneLeftStickXPower, oneRightStickXPower);
-
-        // Slow Controls
-        ToggleSlowMode(oneButtonA);
-
         // Claw Controls
         ToggleClaw(twoBumperLeft);
         ToggleGrab(twoBumperRight);
@@ -181,61 +142,6 @@ public class TeleOpMain extends OpMode {
      * Methods
      */
 
-    //https://ftcforum.usfirst.org/forum/ftc-technology/android-studio/6361-mecanum-wheels-drive-code-example
-    //******************************************************************
-    // Get the inputs from the controller for power [ PRO ]
-    //******************************************************************
-    private void ProMotorControl(double left_stick_y, double left_stick_x, double right_stick_x) {
-        double powerLeftY = -left_stick_y;  // DRIVE : Backward -1 <---> 1 Forward
-        double powerLeftX = left_stick_x*-1;   // STRAFE:     Left -1 <---> 1 Right
-        double powerRightX = -right_stick_x; // ROTATE:     Left -1 <---> 1 Right
-
-        double r = Math.hypot(powerLeftX, powerLeftY);
-        double robotAngle = Math.atan2(powerLeftY, powerLeftX) - Math.PI / 4;
-        double leftX = powerRightX;
-        final double v1 = r * Math.cos(robotAngle) + leftX;
-        final double v2 = r * Math.sin(robotAngle) - leftX;
-        final double v3 = r * Math.sin(robotAngle) + leftX;
-        final double v4 = r * Math.cos(robotAngle) - leftX;
-
-        telemetry.addData("Magnus Is Ready","");
-
-
-        telemetry.addData("Wheel Front Left",v1*power);
-        telemetry.addData("Wheel Front Right",v2*power);
-        telemetry.addData("Wheel Back Left",v3*power);
-        telemetry.addData("Wheel Back Right",v4*power);
-
-        WheelFrontLeft.setPower(v1*power);
-        WheelFrontRight.setPower(v2*power);
-        WheelBackLeft.setPower(v3*power);
-        WheelBackRight.setPower(v4*power);
-
-    }
-
-    private void ToggleSlowMode(boolean button) {
-        if (button && !buttonSlowIsPressed) {
-            buttonSlowIsPressed = true;
-            if (slowModeOn) {
-                power = 0.9;
-                telemetry.addData("Drive Mode","Fast");
-            } else {
-                power = 0.6;
-                telemetry.addData("Drive Mode","Slow");
-            }
-            slowModeOn = !slowModeOn;
-        }
-
-        if (!button) {
-            buttonSlowIsPressed = false;
-        }
-
-        if (slowModeOn) {
-            telemetry.addData("Drive Mode","Fast");
-        } else {
-            telemetry.addData("Drive Mode","Slow");
-        }
-    }
 
     private void setLift(boolean up,boolean down) {
         if (up) {
@@ -318,9 +224,9 @@ public class TeleOpMain extends OpMode {
         if (button && !buttonClawIsPressed) {
             buttonClawIsPressed = true;
             if (clawIsOpen) {
-                OpenClaw();
-            } else {
                 CloseClaw();
+            } else {
+                OpenClaw();
             }
             clawIsOpen = !clawIsOpen;
         }
@@ -342,9 +248,9 @@ public class TeleOpMain extends OpMode {
         if (button && !buttonGrabIsPressed) {
             buttonGrabIsPressed = true;
             if (grabIsOpen) {
-                OpenGrab();
-            } else {
                 CloseGrab();
+            } else {
+                OpenGrab();
             }
             grabIsOpen = !grabIsOpen;
         }
@@ -413,48 +319,61 @@ public class TeleOpMain extends OpMode {
 
         telemetry.addData("Direction Rotate",directionRotate);
 
-        OpenGrab();
+//        OpenGrab();
 
         if(heightLift != -1 && directionRotate != -1) {
-            CloseClaw();
+            if (heightLift == GROUND && (directionRotate == EAST || directionRotate == WEST)) {
+                // Do nothing
+            } else {
 
-            do {
-                if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
-                    autoLift(LOW); // Lift to Low
-                } else {
-                    autoLift(heightLift); // Lift to height
+                // Retract scissor
+                // Sleep for a bit
+                CloseGrab();
+                sleep(500);
+                CloseClaw();
+                sleep(500);
+
+                do {
+                    if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
+                        autoLift(LOW); // Lift to Low
+                    } else {
+                        autoLift(heightLift); // Lift to height
+                    }
+                    getTurriftTelemetry();
+                } while (Lift.isBusy() && !backButton);
+
+                OpenGrab();
+
+                do {
+                    if (heightLift == GROUND && (directionRotate != NORTH && directionRotate != SOUTH)) {
+                        // Do Nothing
+                    } else {
+                        RotateTurret(directionRotate);
+                    }
+                    getTurriftTelemetry();
+                } while (Turret.isBusy() && !backButton);
+
+                Turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                Turret.setPower(0);
+
+                do {
+                    if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
+                        autoLift(GROUND); // Lift to Ground
+                    }
+                    getTurriftTelemetry();
+                } while (Lift.isBusy() && !backButton);
+
+                if (heightLift != GROUND && directionRotate != NORTH) {
+                    // Extend scissors
+                    // Sleep for a bit
                 }
-                getTurriftTelemetry();
-            } while (Lift.isBusy() && !backButton);
-
-            do {
-                if (heightLift == GROUND && (directionRotate != NORTH && directionRotate != SOUTH)) {
-                    // Do Nothing
-                } else {
-                    RotateTurret(directionRotate);
-                }
-                getTurriftTelemetry();
-            } while (Turret.isBusy() && !backButton);
-
-            Turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            Turret.setPower(0);
-
-            do {
-                if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
-                    autoLift(GROUND); // Lift to Ground
-                }
-                getTurriftTelemetry();
-            } while (Lift.isBusy() && !backButton);
+            }
 
             //CODE LIGHTS Black
-
             heightLift = -1;
             directionRotate = -1;
+            telemetry.addData("Position Lift", heightLift);
         }
-        telemetry.addData("Position Lift", heightLift);
-
-
-        CloseGrab();
 
         telemetry.update();
     }
@@ -468,18 +387,18 @@ public class TeleOpMain extends OpMode {
 
 
     private void CloseClaw() {
-        Claw.setPosition(1);
+        Claw.setPosition(CLAW_CLOSE);
     }
 
     private void OpenClaw() {
-        Claw.setPosition(0.3);
+        Claw.setPosition(CLAW_OPEN);
     }
 
     private void CloseGrab() {
-        Grab.setPosition(0);
+        Grab.setPosition(GRAB_CLOSE);
     }
 
     private void OpenGrab() {
-        Grab.setPosition(0.5);
+        Grab.setPosition(GRAB_OPEN);
     }
 }
