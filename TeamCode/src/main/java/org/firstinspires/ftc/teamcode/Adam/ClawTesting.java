@@ -52,7 +52,7 @@ public class ClawTesting extends OpMode {
     private Servo Grab;
     private boolean grabIsOpen = true;
     private boolean buttonGrabIsPressed = false;
-    private final double GRAB_CLOSE = 0.0;
+    private final double GRAB_CLOSE = 0.2;
     private final double GRAB_OPEN = 0.5;
 
 
@@ -162,21 +162,12 @@ public class ClawTesting extends OpMode {
     }
 
     private void autoLift(int height) {
-//        // If we have pressed a button to set the position...
-//        if (setToPositionMode) {
-            // Set the target position
-            Lift.setTargetPosition(height);
-            // Switch to RUN_TO_POSITION mode
-            Lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            // Get the motor moving by setting the max velocity in ticks per second
-            Lift.setVelocity(MAX_LIFT_VELOCITY);
-//        }
-
-//        // Once the motor is finished moving to the position we have set...
-//        if (!Lift.isBusy() && setToPositionMode) {
-//            setToPositionMode = false;
-//            LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        }
+        // Set the target position
+        Lift.setTargetPosition(height);
+        // Switch to RUN_TO_POSITION mode
+        Lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // Get the motor moving by setting the max velocity in ticks per second
+        Lift.setVelocity(MAX_LIFT_VELOCITY);
 
     }
 
@@ -342,7 +333,11 @@ public class ClawTesting extends OpMode {
                     getTurriftTelemetry();
                 } while (Lift.isBusy() && !backButton);
 
-                OpenGrab();
+                if (heightLift == GROUND && directionRotate == NORTH) {
+                    CloseGrab();
+                } else {
+                    OpenGrab();
+                }
 
                 do {
                     if (heightLift == GROUND && (directionRotate != NORTH && directionRotate != SOUTH)) {
@@ -362,6 +357,13 @@ public class ClawTesting extends OpMode {
                     }
                     getTurriftTelemetry();
                 } while (Lift.isBusy() && !backButton);
+
+                if (heightLift == GROUND && directionRotate == NORTH) {
+                    OpenClaw();
+                    sleep(500);
+                    OpenGrab();
+                    sleep(500);
+                }
 
                 if (heightLift != GROUND && directionRotate != NORTH) {
                     // Extend scissors

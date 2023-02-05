@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Adam;
 
+import static android.os.SystemClock.sleep;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -46,12 +48,17 @@ public class TeleOpMain extends OpMode {
 
     // Claw
     private Servo Claw;
-    private boolean clawIsOpen = false;
+    private boolean clawIsOpen = true;
     private boolean buttonClawIsPressed = false;
+    private final double CLAW_CLOSE = 0.3;
+    private final double CLAW_OPEN = 0.75;
 
+    // Grabber
     private Servo Grab;
-    private boolean grabIsOpen = false;
+    private boolean grabIsOpen = true;
     private boolean buttonGrabIsPressed = false;
+    private final double GRAB_CLOSE = 0.2;
+    private final double GRAB_OPEN = 0.5;
 
 
     // SlowMode
@@ -109,11 +116,11 @@ public class TeleOpMain extends OpMode {
         // Initialize Claw
         Claw = hardwareMap.get(Servo.class, "Claw");
         Claw.setDirection(Servo.Direction.FORWARD);
-        CloseClaw();
+        OpenClaw();
 
         Grab = hardwareMap.get(Servo.class, "Grab");
         Grab.setDirection(Servo.Direction.FORWARD);
-        CloseGrab();
+        OpenGrab();
 
         // Let the user know initialization is complete.
         telemetry.addData("I", "Initialization Complete!");
@@ -256,21 +263,12 @@ public class TeleOpMain extends OpMode {
     }
 
     private void autoLift(int height) {
-//        // If we have pressed a button to set the position...
-//        if (setToPositionMode) {
-            // Set the target position
-            Lift.setTargetPosition(height);
-            // Switch to RUN_TO_POSITION mode
-            Lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            // Get the motor moving by setting the max velocity in ticks per second
-            Lift.setVelocity(MAX_LIFT_VELOCITY);
-//        }
-
-//        // Once the motor is finished moving to the position we have set...
-//        if (!Lift.isBusy() && setToPositionMode) {
-//            setToPositionMode = false;
-//            LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        }
+        // Set the target position
+        Lift.setTargetPosition(height);
+        // Switch to RUN_TO_POSITION mode
+        Lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // Get the motor moving by setting the max velocity in ticks per second
+        Lift.setVelocity(MAX_LIFT_VELOCITY);
 
     }
 
@@ -318,9 +316,9 @@ public class TeleOpMain extends OpMode {
         if (button && !buttonClawIsPressed) {
             buttonClawIsPressed = true;
             if (clawIsOpen) {
-                OpenClaw();
-            } else {
                 CloseClaw();
+            } else {
+                OpenClaw();
             }
             clawIsOpen = !clawIsOpen;
         }
@@ -342,9 +340,9 @@ public class TeleOpMain extends OpMode {
         if (button && !buttonGrabIsPressed) {
             buttonGrabIsPressed = true;
             if (grabIsOpen) {
-                OpenGrab();
-            } else {
                 CloseGrab();
+            } else {
+                OpenGrab();
             }
             grabIsOpen = !grabIsOpen;
         }
@@ -413,48 +411,72 @@ public class TeleOpMain extends OpMode {
 
         telemetry.addData("Direction Rotate",directionRotate);
 
-        OpenGrab();
+//        OpenGrab();
 
         if(heightLift != -1 && directionRotate != -1) {
-            CloseClaw();
+            if (heightLift == GROUND && (directionRotate == EAST || directionRotate == WEST)) {
+                // Do nothing
+            } else {
 
-            do {
-                if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
-                    autoLift(LOW); // Lift to Low
+                // Retract scissor
+                // Sleep for a bit
+                CloseGrab();
+                sleep(500);
+                CloseClaw();
+                sleep(500);
+
+                do {
+                    if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
+                        autoLift(LOW); // Lift to Low
+                    } else {
+                        autoLift(heightLift); // Lift to height
+                    }
+                    getTurriftTelemetry();
+                } while (Lift.isBusy() && !backButton);
+
+                if (heightLift == GROUND && directionRotate == NORTH) {
+                    CloseGrab();
                 } else {
-                    autoLift(heightLift); // Lift to height
+                    OpenGrab();
                 }
-                getTurriftTelemetry();
-            } while (Lift.isBusy() && !backButton);
 
-            do {
-                if (heightLift == GROUND && (directionRotate != NORTH && directionRotate != SOUTH)) {
-                    // Do Nothing
-                } else {
-                    RotateTurret(directionRotate);
+                do {
+                    if (heightLift == GROUND && (directionRotate != NORTH && directionRotate != SOUTH)) {
+                        // Do Nothing
+                    } else {
+                        RotateTurret(directionRotate);
+                    }
+                    getTurriftTelemetry();
+                } while (Turret.isBusy() && !backButton);
+
+                Turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                Turret.setPower(0);
+
+                do {
+                    if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
+                        autoLift(GROUND); // Lift to Ground
+                    }
+                    getTurriftTelemetry();
+                } while (Lift.isBusy() && !backButton);
+
+                if (heightLift == GROUND && directionRotate == NORTH) {
+                    OpenClaw();
+                    sleep(500);
+                    OpenGrab();
+                    sleep(500);
                 }
-                getTurriftTelemetry();
-            } while (Turret.isBusy() && !backButton);
 
-            Turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            Turret.setPower(0);
-
-            do {
-                if (heightLift == GROUND && (directionRotate == NORTH || directionRotate == SOUTH)) {
-                    autoLift(GROUND); // Lift to Ground
+                if (heightLift != GROUND && directionRotate != NORTH) {
+                    // Extend scissors
+                    // Sleep for a bit
                 }
-                getTurriftTelemetry();
-            } while (Lift.isBusy() && !backButton);
+            }
 
             //CODE LIGHTS Black
-
             heightLift = -1;
             directionRotate = -1;
+            telemetry.addData("Position Lift", heightLift);
         }
-        telemetry.addData("Position Lift", heightLift);
-
-
-        CloseGrab();
 
         telemetry.update();
     }
@@ -468,18 +490,18 @@ public class TeleOpMain extends OpMode {
 
 
     private void CloseClaw() {
-        Claw.setPosition(1);
+        Claw.setPosition(CLAW_CLOSE);
     }
 
     private void OpenClaw() {
-        Claw.setPosition(0.3);
+        Claw.setPosition(CLAW_OPEN);
     }
 
     private void CloseGrab() {
-        Grab.setPosition(0);
+        Grab.setPosition(GRAB_CLOSE);
     }
 
     private void OpenGrab() {
-        Grab.setPosition(0.5);
+        Grab.setPosition(GRAB_OPEN);
     }
 }
