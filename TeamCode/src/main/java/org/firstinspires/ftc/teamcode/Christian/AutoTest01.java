@@ -52,6 +52,8 @@ public class AutoTest01 extends LinearOpMode {
     // REV Blinkin
     private RevBlinkinLedDriver LED;
 
+    private SampleMecanumDrive drive;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -61,13 +63,20 @@ public class AutoTest01 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            // Reset the LEDs
-//            turnOffLEDPattern();
+            drive.setMotorPowers(.2,.2,.2,.2);
 
-            _Drive.Straight(DriveWithEncoders.Direction.FORWARD, 24,  power);
+            sleep(2000);
+
+
+            drive.setMotorPowers(0,0,0,0);
+//
+//            // Reset the LEDs
+////            turnOffLEDPattern();
+//
+//            _Drive.Straight(DriveWithEncoders.Direction.FORWARD, 24,  power);
+////            sleep(5000);
+////            _Drive.Straight(DriveWithEncoders.Direction.BACKWARD, 24, power);
 //            sleep(5000);
-//            _Drive.Straight(DriveWithEncoders.Direction.BACKWARD, 24, power);
-            sleep(5000);
 
             break; // End the program once it has finished
         }
