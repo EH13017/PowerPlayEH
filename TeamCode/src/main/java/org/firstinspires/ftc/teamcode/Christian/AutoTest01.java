@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Christian;
 
+import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -52,6 +53,8 @@ public class AutoTest01 extends LinearOpMode {
     // REV Blinkin
     private RevBlinkinLedDriver LED;
 
+    private int signalValue = 0;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -62,12 +65,49 @@ public class AutoTest01 extends LinearOpMode {
         while (opModeIsActive()) {
 
             // Reset the LEDs
-//            turnOffLEDPattern();
+            turnOffLEDPattern();
 
-            _Drive.Straight(DriveWithEncoders.Direction.FORWARD, 24,  power);
-//            sleep(5000);
-//            _Drive.Straight(DriveWithEncoders.Direction.BACKWARD, 24, power);
+            _Drive.Straight(DriveWithEncoders.Direction.BACKWARD, 27,  power);
+
+            sleep(500);
+
+            switch (signalValue) {
+                case 1:
+                    telemetry.addData("Signal Zone", "Left");
+                    telemetry.update();
+                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
+                    _Rotate.Left(90, power); // Left
+                    break;
+                case 2:
+                    telemetry.addData("Signal Zone", "Center");
+                    telemetry.update();
+                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
+                    // Nothing - Center
+                    break;
+                case 3:
+                    telemetry.addData("Signal Zone", "Right");
+                    telemetry.update();
+                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
+                    _Rotate.Right(90, power); // Right
+                    break;
+                default:
+                    telemetry.addData("Signal Zone", "Invalid");
+                    telemetry.update();
+                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                    break;
+            }
+
+            sleep(500);
+            turnOffLEDPattern();
+
+            _Drive.Straight(IDrive.Direction.BACKWARD, 24, power);
+
+            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
             sleep(5000);
+
 
             break; // End the program once it has finished
         }
@@ -174,6 +214,27 @@ public class AutoTest01 extends LinearOpMode {
         WheelFrontRight.setPower(v2);
         WheelBackLeft.setPower(v3);
         WheelBackRight.setPower(v4);
+    }
+
+    private void detectColor() {
+        if(color.red()>=color.green() & color.red()>=color.blue()){
+            telemetry.addData("Color","Red");
+//            colorValue = 1;
+            // Turn lights red
+            //Left
+        }
+        if(color.green()>=color.red() & color.green()>=color.blue()){
+            telemetry.addData("Color","Green");
+//            colorValue = 2;
+            // Turn lights green
+            //Park
+        }
+        if(color.blue()>=color.red() & color.blue()>=color.green()){
+            telemetry.addData("Color","Blue");
+//            colorValue = 3;
+            // Turn lights blue
+            //Right
+        }
     }
 
     // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
