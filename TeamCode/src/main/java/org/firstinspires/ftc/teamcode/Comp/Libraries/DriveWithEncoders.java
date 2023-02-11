@@ -138,6 +138,7 @@ public class DriveWithEncoders implements IDrive {
             _WheelBackRight.setPower(_power - _correction);
             _WheelFrontLeft.setPower(_power + _correction);
             _WheelFrontRight.setPower(_power - _correction);
+
             UpdateCurrentPositions();
         } while (!_PIDDriveDistance.onTarget());
 
@@ -185,7 +186,7 @@ public class DriveWithEncoders implements IDrive {
         do { // Drive until we reach the target distance
             UpdateCurrentPositions();
             //_power = _PIDDriveDistance.performPID(_leftCurrentPosition);
-            _correction = _PIDDriveStraight.performPID(_Gyro.GetHeadingEH());
+            _correction = -_PIDDriveStraight.performPID(_Gyro.GetHeadingEH());
 
             ShowTelemetry();
 

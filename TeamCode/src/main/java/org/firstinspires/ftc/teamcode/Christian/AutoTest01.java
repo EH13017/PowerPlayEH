@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Christian;
 
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -8,20 +7,32 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.checkerframework.checker.units.qual.A;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Comp.Libraries.AprilTag;
+import org.firstinspires.ftc.teamcode.Comp.Libraries.AprilTagAutonomousInitDetectionExample;
+import org.firstinspires.ftc.teamcode.Comp.Libraries.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.DriveWithEncoders;
+import org.firstinspires.ftc.teamcode.Comp.Libraries.DriveWithoutEncoders;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.EHGyro;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.PIDController;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.Rotate;
+import org.firstinspires.ftc.teamcode.Interfaces.IAprilTag;
 import org.firstinspires.ftc.teamcode.Interfaces.IDrive;
 import org.firstinspires.ftc.teamcode.Interfaces.IGyro;
 import org.firstinspires.ftc.teamcode.Interfaces.IRotate;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 @Autonomous(name = "Auto Test 01", group = "Testing")
 public class AutoTest01 extends LinearOpMode {
+
+    private int delayMills = 500;
 
     private DcMotor WheelFrontLeft;
     private DcMotor WheelFrontRight;
@@ -36,6 +47,7 @@ public class AutoTest01 extends LinearOpMode {
     private IRotate _Rotate;
     private IGyro _EHGyro;
     private IDrive _Drive;
+    public AprilTag _AprilTag;
 
     // A timer helps provide feedback while calibration is taking place
     ElapsedTime timer = new ElapsedTime();
@@ -53,10 +65,13 @@ public class AutoTest01 extends LinearOpMode {
     // REV Blinkin
     private RevBlinkinLedDriver LED;
 
+    // AprilTag Vision
+    OpenCvCamera camera;
     private int signalValue = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
 
         Initialize();
 
@@ -67,43 +82,45 @@ public class AutoTest01 extends LinearOpMode {
             // Reset the LEDs
             turnOffLEDPattern();
 
-            _Drive.Straight(DriveWithEncoders.Direction.BACKWARD, 27,  power);
+//            signalValue = _AprilTag.DetectTag();
+            signalValue = 3;
 
-            sleep(500);
+            sleep(delayMills);
+//            sleep(10000);
 
-            switch (signalValue) {
-                case 1:
-                    telemetry.addData("Signal Zone", "Left");
-                    telemetry.update();
-                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
-                    _Rotate.Left(90, power); // Left
-                    break;
-                case 2:
-                    telemetry.addData("Signal Zone", "Center");
-                    telemetry.update();
-                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            _Drive.Forward(26, power);
 
-                    // Nothing - Center
-                    break;
-                case 3:
-                    telemetry.addData("Signal Zone", "Right");
-                    telemetry.update();
-                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            sleep(delayMills);
 
-                    _Rotate.Right(90, power); // Right
-                    break;
-                default:
-                    telemetry.addData("Signal Zone", "Invalid");
-                    telemetry.update();
-                    setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                    break;
+            if (signalValue == _AprilTag.LEFT) {
+                telemetry.addData("Signal Zone", "Left");
+                telemetry.update();
+                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
+                _Rotate.Left(90, power); // Left
+            } else if (signalValue == _AprilTag.MIDDLE) {
+                telemetry.addData("Signal Zone", "Middle");
+                telemetry.update();
+                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
+                // Nothing - Midele
+            } else if (signalValue == _AprilTag.RIGHT) {
+                telemetry.addData("Signal Zone", "Right");
+                telemetry.update();
+                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
+                _Rotate.Right(90, power); // Right
+            } else {
+                telemetry.addData("Signal Zone", "Invalid");
+                telemetry.update();
+                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
             }
 
-            sleep(500);
+            sleep(delayMills);
             turnOffLEDPattern();
 
-            _Drive.Straight(IDrive.Direction.BACKWARD, 24, power);
+            _Drive.Forward(20, power);
 
             setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
             sleep(5000);
@@ -168,7 +185,7 @@ public class AutoTest01 extends LinearOpMode {
 
         /* Set PID proportional value to produce non-zero correction value when robot veers off
          * straight line. P value controls how sensitive the correction is. */
-        pidDriveDistance = new PIDController(0, 0, 0);
+//        pidDriveDistance = new PIDController(0, 0, 0);
         pidDriveStraight = new PIDController(0.05, 0, 0);
 
         // Wait until the gyro calibration is complete
@@ -179,10 +196,16 @@ public class AutoTest01 extends LinearOpMode {
             sleep(50);
         }
 
+        // Initialize AprilTag Camera
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
         _EHGyro = new EHGyro(modernRoboticsI2cGyro);
         _EHGyro.ResetHeadingEH();
         _Rotate = new Rotate(pidRotate, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, telemetry);
-        _Drive = new DriveWithEncoders(pidDriveDistance, pidDriveStraight, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, OdometerLeft, OdometerRight, telemetry);
+//        _Drive = new DriveWithEncoders(pidDriveDistance, pidDriveStraight, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, OdometerLeft, OdometerRight, telemetry);
+        _Drive = new DriveWithoutEncoders(pidDriveStraight, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, OdometerLeft, OdometerRight, telemetry);
+        _AprilTag = new AprilTag(camera, telemetry);
 
         // REV Blinkin Initialization
         LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
