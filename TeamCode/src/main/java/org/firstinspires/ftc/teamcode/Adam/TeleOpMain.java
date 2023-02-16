@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
+
 
 @TeleOp(name = "TeleOp Main", group = "Competition")
 public class TeleOpMain extends OpMode {
@@ -60,6 +62,7 @@ public class TeleOpMain extends OpMode {
     private final double GRAB_CLOSE = 0.2;
     private final double GRAB_OPEN = 0.5;
 
+    private CRServo scissor;
 
     // SlowMode
     private boolean slowModeOn = false;
@@ -122,6 +125,9 @@ public class TeleOpMain extends OpMode {
         Grab.setDirection(Servo.Direction.FORWARD);
         OpenGrab();
 
+        scissor = hardwareMap.get(CRServo.class, "scissor");
+        scissor.setDirection(CRServo.Direction.FORWARD);
+
         // Let the user know initialization is complete.
         telemetry.addData("I", "Initialization Complete!");
         telemetry.update();
@@ -143,6 +149,8 @@ public class TeleOpMain extends OpMode {
         boolean twoButtonB = gamepad2.b;
         boolean twoButtonX = gamepad2.x;
         boolean twoButtonY = gamepad2.y;
+        float twoTrigerLeft = gamepad2.left_trigger;
+        float twoTrigerRight = gamepad2.right_trigger;
         boolean twoUpPad = gamepad2.dpad_up;
         boolean twoDownPad = gamepad2.dpad_down;
         boolean twoLeftPad = gamepad2.dpad_left;
@@ -150,6 +158,7 @@ public class TeleOpMain extends OpMode {
         boolean twoBack = gamepad2.back;
         boolean twoBumperLeft = gamepad2.left_bumper;
         boolean twoBumperRight = gamepad2.right_bumper;
+        boolean twoStart = gamepad2.start;
 
         /*
          * Do Stuff Here!
@@ -162,11 +171,18 @@ public class TeleOpMain extends OpMode {
         ToggleSlowMode(oneButtonA);
 
         // Claw Controls
-        ToggleClaw(twoBumperLeft);
-        ToggleGrab(twoBumperRight);
+        if(!twoStart) {
+            ToggleClaw(twoBumperLeft);
+            ToggleGrab(twoBumperRight);
+        }
 
         // Lift
 //        setLift(twoBumperLeft, twoBumperRight);
+
+        //Scissor Lift
+        if(twoStart) {
+            ScissorLift(twoBumperLeft, twoBumperRight);
+        }
 
         //Auto Claw
         AutoClaw(twoBack,
@@ -328,9 +344,9 @@ public class TeleOpMain extends OpMode {
         }
 
         if (clawIsOpen) {
-            //telemetry.addData("CLAW","Open");
+            telemetry.addData("CLAW","Open");
         } else {
-            //telemetry.addData("CLAW","Close");
+            telemetry.addData("CLAW","Close");
         }
 
         telemetry.addData("Claw Position", Claw.getPosition());
@@ -364,6 +380,19 @@ public class TeleOpMain extends OpMode {
         Turret.setTargetPosition(position);
         Turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Turret.setVelocity(TURRET_ENCODER_COUNT*2);
+    }
+
+    private void ScissorLift(boolean forward, boolean backward){
+
+        if(forward){
+            scissor.setPower(-1);
+        }
+        else if(backward){
+            scissor.setPower(1);
+        }
+        else if(!forward && !backward){
+            scissor.setPower(0);
+        }
     }
 
     private void AutoClaw(
