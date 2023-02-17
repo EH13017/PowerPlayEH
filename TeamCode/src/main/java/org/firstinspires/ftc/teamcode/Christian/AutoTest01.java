@@ -88,6 +88,7 @@ public class AutoTest01 extends LinearOpMode {
             // Reset the LEDs
             turnOffLEDPattern();
 
+
             timer.reset();
             do {
 //                signalValue = 2;
