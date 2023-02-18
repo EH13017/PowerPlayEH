@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.Adam;
 
 import static android.os.SystemClock.sleep;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -41,7 +43,7 @@ public class TeleOpMain extends OpMode {
     private final int TURRET_ENCODER_COUNT = 288;
     private final int NORTH = 0;
     private final int EAST = TURRET_ENCODER_COUNT/4;
-    private final int SOUTH = TURRET_ENCODER_COUNT/2;
+    private final int SOUTH = -TURRET_ENCODER_COUNT/2;
     private final int WEST = -TURRET_ENCODER_COUNT/4;
 
 
@@ -67,6 +69,9 @@ public class TeleOpMain extends OpMode {
     // SlowMode
     private boolean slowModeOn = false;
     private boolean buttonSlowIsPressed = false;
+
+    // REV Blinkin
+    private RevBlinkinLedDriver LED;
 
 
     @Override
@@ -128,6 +133,10 @@ public class TeleOpMain extends OpMode {
         scissor = hardwareMap.get(CRServo.class, "scissor");
         scissor.setDirection(CRServo.Direction.FORWARD);
 
+        // REV Blinkin Initialization
+        LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
+        setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
         // Let the user know initialization is complete.
         telemetry.addData("I", "Initialization Complete!");
         telemetry.update();
@@ -164,24 +173,26 @@ public class TeleOpMain extends OpMode {
          * Do Stuff Here!
          */
 
+        // LEDs
+        manageLEDColors();
+
         // Drive Controls
         ProMotorControl(oneLeftStickYPower, oneLeftStickXPower, oneRightStickXPower);
 
         // Slow Controls
         ToggleSlowMode(oneButtonA);
 
-        // Claw Controls
-        if(!twoStart) {
-            ToggleClaw(twoBumperLeft);
-            ToggleGrab(twoBumperRight);
-        }
 
         // Lift
         setLift(twoUpPad, twoDownPad);
 
-        //Scissor Lift
-        if(twoStart) {
+        if(twoStart) {  // Scissor Lift
             ScissorLift(twoBumperLeft, twoBumperRight);
+        } else {        // Claw/Grab
+            ScissorLift(false, false);
+            ToggleClaw(twoBumperLeft);
+            ToggleGrab(twoBumperRight);
+
         }
 
         //Auto Claw
@@ -411,16 +422,16 @@ public class TeleOpMain extends OpMode {
         if(A){
             heightLift = GROUND; //Green
         }
-        if(B){
+        else if(B){
             heightLift = LOW; //Red
         }
-        if(X){
+        else if(X){
             heightLift = MEDIUM; //Blue
         }
-        if(Y){
+        else if(Y){
             heightLift = HIGH; //Yellow
         }
-        if(backButton && heightLift != -1){
+        else if(backButton && heightLift != -1){
             heightLift = -1; //Black
         }
 
@@ -428,19 +439,17 @@ public class TeleOpMain extends OpMode {
         if(up && heightLift != -1){
             directionRotate = NORTH;//North
         }
-        if(right && heightLift != -1){
+        else if(right && heightLift != -1){
             directionRotate = EAST;//East
         }
-        if(down && heightLift != -1){
+        else if(down && heightLift != -1){
             directionRotate = SOUTH;//South
         }
-        if(left && heightLift != -1){
+        else if(left && heightLift != -1){
             directionRotate = WEST;//West
         }
 
         telemetry.addData("Direction Rotate",directionRotate);
-
-//        OpenGrab();
 
         if(heightLift != -1 && directionRotate != -1) {
             if (heightLift == GROUND && (directionRotate == EAST || directionRotate == WEST)) {
@@ -534,5 +543,33 @@ public class TeleOpMain extends OpMode {
 
     private void OpenGrab() {
         Grab.setPosition(GRAB_OPEN);
+    }
+
+    // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
+    // https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf
+    protected void setLEDPattern(RevBlinkinLedDriver.BlinkinPattern setPattern) {
+        LED.setPattern(setPattern);
+    }
+
+    protected void turnOffLEDPattern() {
+        LED.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+    }
+
+    private void manageLEDColors() {
+        if (heightLift == GROUND) {
+            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        }
+        else if (heightLift == LOW) {
+            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        }
+        else if (heightLift == MEDIUM) {
+            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+        }
+        else if (heightLift == HIGH) {
+            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+        }
+        else {
+            turnOffLEDPattern();
+        }
     }
 }

@@ -44,6 +44,8 @@ public class AutoTest01 extends LinearOpMode {
     private DcMotor WheelBackRight;
     private double PERCENT_TO_SLOW = 0.60;
 
+    private double distanceToDrive = 4;
+
     // Encoders
     private DcMotor OdometerLeft;
     private DcMotor OdometerRight;
@@ -86,45 +88,51 @@ public class AutoTest01 extends LinearOpMode {
             // Reset the LEDs
             turnOffLEDPattern();
 
-//            signalValue = _AprilTag.DetectTag();
-            signalValue = 3;
+            timer.reset();
+            do {
+//                signalValue = 2;
+                signalValue = _AprilTag.DetectTag();
+            } while (timer.milliseconds() < 3000);
+
+
+            _Drive.Backward(22, power);
 
             sleep(delayMills);
-//            sleep(10000);
 
-
-            _Drive.Forward(26, power);
-
-            sleep(delayMills);
-
-            if (signalValue == _AprilTag.LEFT) {
+            if (signalValue == _AprilTag.LEFT) { // Right
                 telemetry.addData("Signal Zone", "Left");
                 telemetry.update();
+                distanceToDrive = 23;
                 setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
                 _Rotate.Left(90, power); // Left
-            } else if (signalValue == _AprilTag.MIDDLE) {
+            } else if (signalValue == _AprilTag.MIDDLE) { // Middle
                 telemetry.addData("Signal Zone", "Middle");
                 telemetry.update();
+                distanceToDrive = 4;
                 setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
-                // Nothing - Midele
-            } else if (signalValue == _AprilTag.RIGHT) {
+                // Nothing - Middle
+            } else if (signalValue == _AprilTag.RIGHT) { // Right
                 telemetry.addData("Signal Zone", "Right");
                 telemetry.update();
+                distanceToDrive = 28;
                 setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
                 _Rotate.Right(90, power); // Right
-            } else {
+            } else { // invalid
                 telemetry.addData("Signal Zone", "Invalid");
                 telemetry.update();
+                distanceToDrive = 4;
                 setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+
+                // Nothing - Invalid
             }
 
             sleep(delayMills);
             turnOffLEDPattern();
 
-            _Drive.Forward(20, power);
+            _Drive.Backward(distanceToDrive, power);
 
             setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
             sleep(5000);
