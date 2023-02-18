@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Christian;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,11 +17,11 @@ public class LiftEncoderTest extends OpMode {
     // Lift
     private DcMotorEx Lift;
     private int heightLift = -1;
-    private final int ENCODER_COUNT_LIFT = 1120;
+    private final int ENCODER_COUNT_LIFT = 1680; // 1680
     private final int GROUND = 0;
-    private final int LOW = -1000;
-    private final int MEDIUM = -1750;
-    private final int HIGH = -2400;
+    private final int LOW = -1750; // -1150;
+    private final int MEDIUM = -2750; // -1800;
+    private final int HIGH = -3800; // -2500;
     private final double MAX_LIFT_SPEED = 0.75;
     private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT*2;
 

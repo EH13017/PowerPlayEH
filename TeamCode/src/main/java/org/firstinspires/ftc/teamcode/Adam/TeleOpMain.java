@@ -27,13 +27,13 @@ public class TeleOpMain extends OpMode {
     // Lift
     private DcMotorEx Lift;
     private int heightLift = -1;
-    private final int ENCODER_COUNT_LIFT = 1120;
+    private final int ENCODER_COUNT_LIFT = 1680; // 1680
     private final int GROUND = 0;
-    private final int LOW = -1000;
-    private final int MEDIUM = -1750;
-    private final int HIGH = -2400;
+    private final int LOW = -1750; // -1150;
+    private final int MEDIUM = -2800; // -1800;
+    private final int HIGH = -3850; // -2500;
     private final double MAX_LIFT_SPEED = 0.75;
-    private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT*2;
+    private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT;
 
     // Turret
     private DcMotorEx Turret;
@@ -59,7 +59,7 @@ public class TeleOpMain extends OpMode {
     private Servo Grab;
     private boolean grabIsOpen = true;
     private boolean buttonGrabIsPressed = false;
-    private final double GRAB_CLOSE = 0.2;
+    private final double GRAB_CLOSE = 0.1;
     private final double GRAB_OPEN = 0.5;
 
     private CRServo scissor;
@@ -177,7 +177,7 @@ public class TeleOpMain extends OpMode {
         }
 
         // Lift
-//        setLift(twoBumperLeft, twoBumperRight);
+        setLift(twoUpPad, twoDownPad);
 
         //Scissor Lift
         if(twoStart) {
@@ -185,15 +185,15 @@ public class TeleOpMain extends OpMode {
         }
 
         //Auto Claw
-        AutoClaw(twoBack,
-                twoUpPad,
-                twoDownPad,
-                twoLeftPad,
-                twoRightPad,
-                twoButtonA,
-                twoButtonB,
-                twoButtonX,
-                twoButtonY);
+//        AutoClaw(twoBack,
+//                twoUpPad,
+//                twoDownPad,
+//                twoLeftPad,
+//                twoRightPad,
+//                twoButtonA,
+//                twoButtonB,
+//                twoButtonX,
+//                twoButtonY);
 
         telemetry.update();
 
@@ -463,11 +463,8 @@ public class TeleOpMain extends OpMode {
                     getTurriftTelemetry();
                 } while (Lift.isBusy() && !backButton);
 
-                if (heightLift == GROUND && directionRotate == NORTH) {
-                    CloseGrab();
-                } else {
-                    OpenGrab();
-                }
+                OpenGrab();
+                sleep(500);
 
                 do {
                     if (heightLift == GROUND && (directionRotate != NORTH && directionRotate != SOUTH)) {
@@ -487,6 +484,11 @@ public class TeleOpMain extends OpMode {
                     }
                     getTurriftTelemetry();
                 } while (Lift.isBusy() && !backButton);
+
+//                if (heightLift == GROUND && directionRotate == NORTH) {
+//                    CloseGrab();
+//                    sleep(500);
+//                }
 
                 if (heightLift == GROUND && directionRotate == NORTH) {
                     OpenClaw();
