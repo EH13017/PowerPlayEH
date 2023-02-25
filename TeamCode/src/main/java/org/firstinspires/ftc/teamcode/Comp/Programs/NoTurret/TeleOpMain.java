@@ -83,6 +83,7 @@ public class TeleOpMain extends OpMode {
       WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
       // Initialize Lift
       telemetry.addData("I", "Initializing Lift");
       telemetry.update();
@@ -99,6 +100,7 @@ public class TeleOpMain extends OpMode {
       LiftRight.setDirection(DcMotorSimple.Direction.REVERSE);
       LiftRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
 //      // Initialize Claw
 //      telemetry.addData("I", "Initializing Claw");
 //      telemetry.update();
@@ -107,12 +109,14 @@ public class TeleOpMain extends OpMode {
 //      Claw.setDirection(Servo.Direction.FORWARD);
 //      OpenClaw(); // TODO: Uncomment this
 
-//      // REV Blinkin Initialization
+
+//      // Initialize REV Blinkin
 //      telemetry.addData("I", "Initializing Blinkin");
 //      telemetry.update();
 //
 //      LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
 //      setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
 
       // Let the user know initialization is complete.
       telemetry.addData("I", "Initialization Complete! :D");
@@ -162,18 +166,18 @@ public class TeleOpMain extends OpMode {
       // Slow Controls
       ToggleSlowMode(oneButtonA);
 
-      // Lift
+      // Lift Controls
       setLift(twoPadUp, twoPadDown);
       GetLiftTelemetry();
 
-//      // Auto Lift TODO: Set lift values
+//      // Auto Lift Controls TODO: Set lift values
 //      AutoLift(twoBack,
 //               twoButtonA,
 //               twoButtonB,
 //               twoButtonX,
 //               twoButtonY);
 
-//      // Claw TODO: Set claw values
+//      // Claw Controls TODO: Set claw values
 //      ToggleClaw(twoBumperRight);
 
       telemetry.update();

@@ -26,28 +26,32 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 @Autonomous(name = "Auto Main", group = "Competition")
 public class AutoTest01 extends LinearOpMode {
 
-    private int delayMills = 500;
+    /*
+     * Declare Hardware
+     */
 
+    // Wheels
     private DcMotor WheelFrontLeft;
     private DcMotor WheelFrontRight;
     private DcMotor WheelBackLeft;
     private DcMotor WheelBackRight;
     private double power = 0.4;
     private double PERCENT_TO_SLOW = 0.60;
-
-    private double distanceToDrive = 4;
+    private double distanceToDrive = 4; // Distance after deciding which Signal Zone to park in
 
     // Encoders
     private DcMotor EncoderLeft;
     private DcMotor EncoderRight;
 
+    // Code Libraries
     private IRotate _Rotate;
     private IGyro _EHGyro;
     private IDrive _Drive;
     public AprilTag _AprilTag;
 
-    // A timer helps provide feedback while calibration is taking place
+    // Timer - A timer helps provide feedback while calibration is taking place
     ElapsedTime timer = new ElapsedTime();
+    private final int DELAY_MILLS = 500;
 
     // PID
     private PIDController pidRotate, pidDriveDistance, pidDriveStraight;
@@ -62,65 +66,77 @@ public class AutoTest01 extends LinearOpMode {
     OpenCvCamera camera;
     private int signalValue = 0;
 
+
     @Override
     public void runOpMode() throws InterruptedException {
 
-
         Initialize();
-
         waitForStart();
 
         while (opModeIsActive()) {
 
+            /*
+             * Do Stuff Here!
+             */
+
 //            // Reset the LEDs
 //            turnOffLEDPattern();
 
+            // Detect the AprilTag on the Signal Sleeve
             timer.reset();
             do {
-//                signalValue = 2;
-                signalValue = _AprilTag.DetectTag();
+//                signalValue = 2; // Manual detection
+                signalValue = _AprilTag.DetectTag(); // Automatic detection
             } while (timer.milliseconds() < 3000);
 
 
+            // Drive into Signal Zone 2
             _Drive.Backward(22, power);
+            sleep(DELAY_MILLS);
 
-            sleep(delayMills);
 
-            if (signalValue == _AprilTag.LEFT) { // Right
+            // Determine which Signal Zone to park in
+            if (signalValue == _AprilTag.LEFT) { // Left
                 telemetry.addData("Signal Zone", "Left");
                 telemetry.update();
                 distanceToDrive = 23;
 //                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
-                _Rotate.Left(90, power); // Left
-            } else if (signalValue == _AprilTag.MIDDLE) { // Middle
+                _Rotate.Left(90, power);
+            }
+            else if (signalValue == _AprilTag.MIDDLE) { // Middle
                 telemetry.addData("Signal Zone", "Middle");
                 telemetry.update();
                 distanceToDrive = 4;
 //                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
-                // Nothing - Middle
-            } else if (signalValue == _AprilTag.RIGHT) { // Right
+                // Don't Rotate
+            }
+            else if (signalValue == _AprilTag.RIGHT) { // Right
                 telemetry.addData("Signal Zone", "Right");
                 telemetry.update();
                 distanceToDrive = 28;
 //                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
-                _Rotate.Right(90, power); // Right
-            } else { // invalid
+                _Rotate.Right(90, power);
+            }
+            else { // Invalid
                 telemetry.addData("Signal Zone", "Invalid");
                 telemetry.update();
                 distanceToDrive = 4;
 //                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
 
-                // Nothing - Invalid
+                // Don't Rotate - Invalid Zone
             }
-
-            sleep(delayMills);
+            sleep(DELAY_MILLS);
 //            turnOffLEDPattern();
 
+
+            // Drive into the appropriate Signal Zone
             _Drive.Backward(distanceToDrive, power);
 
+
+//            // Show off the pretty lights once we are finished!!
 //            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
 //            sleep(5000);
 
@@ -129,6 +145,11 @@ public class AutoTest01 extends LinearOpMode {
         }
 
     }
+
+
+    /*
+     * Methods
+     */
 
     public void Initialize() {
 
@@ -173,6 +194,7 @@ public class AutoTest01 extends LinearOpMode {
 //        telemetry.addData("I", "Initializing Lift");
 //        telemetry.update();
 
+
         // Initialize Gyro
         telemetry.addData("I", "Initializing Gyro and PID");
         telemetry.update();
@@ -182,6 +204,7 @@ public class AutoTest01 extends LinearOpMode {
         telemetry.addData("GC", "Gyro Calibrating. Do Not Move!");
         telemetry.update();
         modernRoboticsI2cGyro.calibrate();
+
 
         // Initialize PID
 
@@ -203,12 +226,18 @@ public class AutoTest01 extends LinearOpMode {
             sleep(50);
         }
 
+
         // Initialize AprilTag Camera
         telemetry.addData("I", "Initializing Webcam");
         telemetry.update();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
+
+        // Initialize Code Libraries
+        telemetry.addData("I", "Initializing Code Libraries");
+        telemetry.update();
 
         _EHGyro = new EHGyro(modernRoboticsI2cGyro);
         _EHGyro.ResetHeadingEH();
@@ -217,17 +246,18 @@ public class AutoTest01 extends LinearOpMode {
         _Drive = new DriveWithoutEncoders(pidDriveStraight, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, EncoderLeft, EncoderRight, telemetry);
         _AprilTag = new AprilTag(camera, telemetry);
 
-//        // REV Blinkin Initialization
+
+//        // Initialize REV Blinkin
 //        telemetry.addData("I", "Initializing Blinkin");
 //        telemetry.update();
 //
 //        LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
 //        setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
+
         // Let the user know initialization is complete.
         telemetry.addData("I", "Initialization Complete! :D");
         telemetry.update();
-
     }
 
 //    // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
