@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.Comp;
+package org.firstinspires.ftc.teamcode.Comp.Programs.Turret;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,7 +17,8 @@ import org.firstinspires.ftc.teamcode.Interfaces.IVision;
 
 import java.util.List;
 
-@Autonomous(name = "Auto Competition", group = "Competition")
+@Disabled
+@Autonomous(name = "Auto Competition - OLD OLD", group = "Competition")
 public class AutoMain extends LinearOpMode {
 
    private DcMotor WheelFrontLeft;

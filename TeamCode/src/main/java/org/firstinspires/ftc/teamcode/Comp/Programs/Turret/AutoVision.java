@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Comp;
+package org.firstinspires.ftc.teamcode.Comp.Programs.Turret;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -15,8 +15,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-//@Disabled
-@Autonomous(name = "Auto Vision", group = "Competition")
+@Disabled
+@Autonomous(name = "Auto Vision - OLD (Turret)", group = "Competition")
 public class AutoVision extends LinearOpMode {
 
     private DcMotor WheelFrontLeft;

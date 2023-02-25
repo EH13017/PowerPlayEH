@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Christian;
+package org.firstinspires.ftc.teamcode.Comp.Programs.NoTurret;
 
 //<<<<<<< HEAD
 ////import com.acmerobotics.roadrunner.drive.Drive;
@@ -13,27 +13,19 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.AprilTag;
-import org.firstinspires.ftc.teamcode.Comp.Libraries.AprilTagAutonomousInitDetectionExample;
-import org.firstinspires.ftc.teamcode.Comp.Libraries.AprilTagDetectionPipeline;
-import org.firstinspires.ftc.teamcode.Comp.Libraries.DriveWithEncoders;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.DriveWithoutEncoders;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.EHGyro;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.PIDController;
 import org.firstinspires.ftc.teamcode.Comp.Libraries.Rotate;
-import org.firstinspires.ftc.teamcode.Interfaces.IAprilTag;
 import org.firstinspires.ftc.teamcode.Interfaces.IDrive;
 import org.firstinspires.ftc.teamcode.Interfaces.IGyro;
 import org.firstinspires.ftc.teamcode.Interfaces.IRotate;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
-@Autonomous(name = "Auto Test 01", group = "Testing")
+@Autonomous(name = "Auto Main", group = "Competition")
 public class AutoTest01 extends LinearOpMode {
 
     private int delayMills = 500;
