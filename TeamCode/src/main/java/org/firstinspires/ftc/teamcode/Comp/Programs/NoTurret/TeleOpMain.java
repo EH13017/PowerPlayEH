@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import static android.os.SystemClock.sleep;
@@ -25,34 +26,34 @@ public class TeleOpMain extends OpMode {
    private DcMotor WheelBackLeft;
    private DcMotor WheelBackRight;
 
-   // Lift
-   private DcMotorEx LiftLeft;
-   private DcMotorEx LiftRight;
-   private int heightLift = -1;
-   private final int ENCODER_COUNT_LIFT = 1680; // 1680
-   private final int GROUND = 0;
-   private final int LOW = -1750; // -1150;
-   private final int MEDIUM = -2800; // -1800;
-   private final int HIGH = -3850; // -2500;
-   private final double MAX_LIFT_SPEED = 0.75;
-   private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT;
+//   // Lift
+//   private DcMotorEx LiftLeft;
+//   private DcMotorEx LiftRight;
+//   private int heightLift = -1;
+//   private final int ENCODER_COUNT_LIFT = 1680; // 1680
+//   private final int GROUND = 0;
+//   private final int LOW = -1750; // -1150;
+//   private final int MEDIUM = -2800; // -1800;
+//   private final int HIGH = -3850; // -2500;
+//   private final double MAX_LIFT_SPEED = 0.75;
+//   private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT;
 
 
    double power = 0.6;
 
-   // Claw
-   private Servo Claw;
-   private boolean clawIsOpen = true;
-   private boolean buttonClawIsPressed = false;
-   private final double CLAW_CLOSE = 0.3;
-   private final double CLAW_OPEN = 0.75;
+//   // Claw
+//   private Servo Claw;
+//   private boolean clawIsOpen = true;
+//   private boolean buttonClawIsPressed = false;
+//   private final double CLAW_CLOSE = 0.3;
+//   private final double CLAW_OPEN = 0.75;
 
    // SlowMode
    private boolean slowModeOn = false;
    private boolean buttonSlowIsPressed = false;
 
-   // REV Blinkin
-   private RevBlinkinLedDriver LED;
+//   // REV Blinkin
+//   private RevBlinkinLedDriver LED;
 
 
    @Override
@@ -90,25 +91,25 @@ public class TeleOpMain extends OpMode {
       WheelBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-      // Initialize Lift
-      LiftLeft = hardwareMap.get(DcMotorEx.class, "LiftL");
-      LiftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-      LiftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-      LiftLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-      LiftRight = hardwareMap.get(DcMotorEx.class, "LiftR");
-      LiftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-      LiftRight.setDirection(DcMotorSimple.Direction.REVERSE);
-      LiftRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-      // Initialize Claw
-      Claw = hardwareMap.get(Servo.class, "Claw");
-      Claw.setDirection(Servo.Direction.FORWARD);
-      OpenClaw();
-
-      // REV Blinkin Initialization
-      LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
-      setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//      // Initialize Lift
+//      LiftLeft = hardwareMap.get(DcMotorEx.class, "LiftL");
+//      LiftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//      LiftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+//      LiftLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//      LiftRight = hardwareMap.get(DcMotorEx.class, "LiftR");
+//      LiftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//      LiftRight.setDirection(DcMotorSimple.Direction.REVERSE);
+//      LiftRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//      // Initialize Claw
+//      Claw = hardwareMap.get(Servo.class, "Claw");
+//      Claw.setDirection(Servo.Direction.FORWARD);
+//      OpenClaw();
+//
+//      // REV Blinkin Initialization
+//      LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
+//      setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
       // Let the user know initialization is complete.
       telemetry.addData("I", "Initialization Complete!");
@@ -146,8 +147,8 @@ public class TeleOpMain extends OpMode {
        * Do Stuff Here!
        */
 
-      // LEDs
-      manageLEDColors();
+//      // LEDs
+//      manageLEDColors();
 
       // Drive Controls
       ProMotorControl(oneLeftStickYPower, oneLeftStickXPower, oneRightStickXPower);
@@ -155,18 +156,18 @@ public class TeleOpMain extends OpMode {
       // Slow Controls
       ToggleSlowMode(oneButtonA);
 
-      // Lift
-      setLift(twoButtonY, twoButtonA);
-
-      getTurriftTelemetry();
-
-      if(twoStart) {  // Scissor Lift
-      } else {        // Claw/Grab
-         ToggleClaw(twoBumperLeft);
-         if (clawIsOpen) {
-         }
-
-      }
+//      // Lift
+//      setLift(twoButtonY, twoButtonA);
+//
+//      getTurriftTelemetry();
+//
+//      if(twoStart) {  // Scissor Lift
+//      } else {        // Claw/Grab
+//         ToggleClaw(twoBumperLeft);
+//         if (clawIsOpen) {
+//         }
+//
+//      }
 
       // Auto Claw
 //        AutoClaw(twoBack,
@@ -244,66 +245,66 @@ public class TeleOpMain extends OpMode {
       }
    }
 
-   private void setLift(boolean up,boolean down) {
-      if (up) {
-         LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-         LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            Lift.setPower(MAX_LIFT_SPEED);
-         LiftLeft.setVelocity(-MAX_LIFT_VELOCITY);
-         LiftRight.setVelocity(-MAX_LIFT_VELOCITY);
-      }
-      else if (down) { // down && Lift.getCurrentPosition() <= LOW
-         LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-         LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            Lift.setPower(-MAX_LIFT_SPEED);
-         LiftLeft.setVelocity(MAX_LIFT_VELOCITY);
-         LiftRight.setVelocity(MAX_LIFT_VELOCITY);
-      }
-      else {
-         LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-         LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            Lift.setPower(0);
-         LiftLeft.setVelocity(0);
-         LiftRight.setVelocity(0);
-      }
-   }
-
-   private void autoLift(int height) {
-      // Set the target position
-      LiftLeft.setTargetPosition(height);
-      LiftRight.setTargetPosition(height);
-      // Switch to RUN_TO_POSITION mode
-      LiftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      LiftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      // Get the motor moving by setting the max velocity in ticks per second
-      LiftLeft.setVelocity(MAX_LIFT_VELOCITY);
-      LiftRight.setVelocity(MAX_LIFT_VELOCITY);
-
-   }
-
-   private void ToggleClaw(boolean button) {
-      if (button && !buttonClawIsPressed) {
-         buttonClawIsPressed = true;
-         if (clawIsOpen) {
-            CloseClaw();
-         } else {
-            OpenClaw();
-         }
-         clawIsOpen = !clawIsOpen;
-      }
-
-      if (!button) {
-         buttonClawIsPressed = false;
-      }
-
-      if (clawIsOpen) {
-         telemetry.addData("CLAW","Open");
-      } else {
-         telemetry.addData("CLAW","Close");
-      }
-
-      telemetry.addData("Claw Position", Claw.getPosition());
-   }
+//   private void setLift(boolean up,boolean down) {
+//      if (up) {
+//         LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//         LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+////            Lift.setPower(MAX_LIFT_SPEED);
+//         LiftLeft.setVelocity(-MAX_LIFT_VELOCITY);
+//         LiftRight.setVelocity(-MAX_LIFT_VELOCITY);
+//      }
+//      else if (down) { // down && Lift.getCurrentPosition() <= LOW
+//         LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//         LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+////            Lift.setPower(-MAX_LIFT_SPEED);
+//         LiftLeft.setVelocity(MAX_LIFT_VELOCITY);
+//         LiftRight.setVelocity(MAX_LIFT_VELOCITY);
+//      }
+//      else {
+//         LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//         LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+////            Lift.setPower(0);
+//         LiftLeft.setVelocity(0);
+//         LiftRight.setVelocity(0);
+//      }
+//   }
+//
+//   private void autoLift(int height) {
+//      // Set the target position
+//      LiftLeft.setTargetPosition(height);
+//      LiftRight.setTargetPosition(height);
+//      // Switch to RUN_TO_POSITION mode
+//      LiftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//      LiftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//      // Get the motor moving by setting the max velocity in ticks per second
+//      LiftLeft.setVelocity(MAX_LIFT_VELOCITY);
+//      LiftRight.setVelocity(MAX_LIFT_VELOCITY);
+//
+//   }
+//
+//   private void ToggleClaw(boolean button) {
+//      if (button && !buttonClawIsPressed) {
+//         buttonClawIsPressed = true;
+//         if (clawIsOpen) {
+//            CloseClaw();
+//         } else {
+//            OpenClaw();
+//         }
+//         clawIsOpen = !clawIsOpen;
+//      }
+//
+//      if (!button) {
+//         buttonClawIsPressed = false;
+//      }
+//
+//      if (clawIsOpen) {
+//         telemetry.addData("CLAW","Open");
+//      } else {
+//         telemetry.addData("CLAW","Close");
+//      }
+//
+//      telemetry.addData("Claw Position", Claw.getPosition());
+//   }
 
 //   private void AutoClaw(
 //           boolean backButton,
@@ -403,48 +404,48 @@ public class TeleOpMain extends OpMode {
 //
 //      telemetry.update();
 //   }
-
-   private void getTurriftTelemetry() {
-      telemetry.addData("LiftL Encoder", LiftLeft.getCurrentPosition());
-      telemetry.addData("LiftR Encoder", LiftRight.getCurrentPosition());
-   }
-
-
-
-
-   private void CloseClaw() {
-      Claw.setPosition(CLAW_CLOSE);
-   }
-
-   private void OpenClaw() {
-      Claw.setPosition(CLAW_OPEN);
-   }
-
-   // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
-   // https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf
-   protected void setLEDPattern(RevBlinkinLedDriver.BlinkinPattern setPattern) {
-      LED.setPattern(setPattern);
-   }
-
-   protected void turnOffLEDPattern() {
-      LED.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
-   }
-
-   private void manageLEDColors() {
-      if (heightLift == GROUND) {
-         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-      }
-      else if (heightLift == LOW) {
-         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-      }
-      else if (heightLift == MEDIUM) {
-         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-      }
-      else if (heightLift == HIGH) {
-         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-      }
-      else {
-         turnOffLEDPattern();
-      }
-   }
+//
+//   private void getTurriftTelemetry() {
+//      telemetry.addData("LiftL Encoder", LiftLeft.getCurrentPosition());
+//      telemetry.addData("LiftR Encoder", LiftRight.getCurrentPosition());
+//   }
+//
+//
+//
+//
+//   private void CloseClaw() {
+//      Claw.setPosition(CLAW_CLOSE);
+//   }
+//
+//   private void OpenClaw() {
+//      Claw.setPosition(CLAW_OPEN);
+//   }
+//
+//   // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
+//   // https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf
+//   protected void setLEDPattern(RevBlinkinLedDriver.BlinkinPattern setPattern) {
+//      LED.setPattern(setPattern);
+//   }
+//
+//   protected void turnOffLEDPattern() {
+//      LED.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+//   }
+//
+//   private void manageLEDColors() {
+//      if (heightLift == GROUND) {
+//         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//      }
+//      else if (heightLift == LOW) {
+//         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+//      }
+//      else if (heightLift == MEDIUM) {
+//         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+//      }
+//      else if (heightLift == HIGH) {
+//         setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+//      }
+//      else {
+//         turnOffLEDPattern();
+//      }
+//   }
 }
