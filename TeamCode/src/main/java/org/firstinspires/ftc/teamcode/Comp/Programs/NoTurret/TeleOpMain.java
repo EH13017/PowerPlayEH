@@ -166,14 +166,14 @@ public class TeleOpMain extends OpMode {
       setLift(twoPadUp, twoPadDown);
       GetLiftTelemetry();
 
-      // Auto Lift TODO: Set lift values
+//      // Auto Lift TODO: Set lift values
 //      AutoLift(twoBack,
 //               twoButtonA,
 //               twoButtonB,
 //               twoButtonX,
 //               twoButtonY);
 
-      // Claw TODO: Set claw values
+//      // Claw TODO: Set claw values
 //      ToggleClaw(twoBumperRight);
 
       telemetry.update();

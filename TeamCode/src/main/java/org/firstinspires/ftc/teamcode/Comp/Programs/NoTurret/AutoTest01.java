@@ -5,10 +5,8 @@ package org.firstinspires.ftc.teamcode.Comp.Programs.NoTurret;
 //=======
 //>>>>>>> e92c857614ba0430d8cdd18257964cbfe4d5256a
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -34,13 +32,14 @@ public class AutoTest01 extends LinearOpMode {
     private DcMotor WheelFrontRight;
     private DcMotor WheelBackLeft;
     private DcMotor WheelBackRight;
+    private double power = 0.4;
     private double PERCENT_TO_SLOW = 0.60;
 
     private double distanceToDrive = 4;
 
     // Encoders
-    private DcMotor OdometerLeft;
-    private DcMotor OdometerRight;
+    private DcMotor EncoderLeft;
+    private DcMotor EncoderRight;
 
     private IRotate _Rotate;
     private IGyro _EHGyro;
@@ -56,12 +55,8 @@ public class AutoTest01 extends LinearOpMode {
     // Gyroscope
     private ModernRoboticsI2cGyro modernRoboticsI2cGyro;
 
-    private double power = 0.4;
-
-    ColorSensor color;
-
-    // REV Blinkin
-    private RevBlinkinLedDriver LED;
+//    // REV Blinkin
+//    private RevBlinkinLedDriver LED;
 
     // AprilTag Vision
     OpenCvCamera camera;
@@ -77,8 +72,8 @@ public class AutoTest01 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            // Reset the LEDs
-            turnOffLEDPattern();
+//            // Reset the LEDs
+//            turnOffLEDPattern();
 
             timer.reset();
             do {
@@ -95,39 +90,39 @@ public class AutoTest01 extends LinearOpMode {
                 telemetry.addData("Signal Zone", "Left");
                 telemetry.update();
                 distanceToDrive = 23;
-                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
                 _Rotate.Left(90, power); // Left
             } else if (signalValue == _AprilTag.MIDDLE) { // Middle
                 telemetry.addData("Signal Zone", "Middle");
                 telemetry.update();
                 distanceToDrive = 4;
-                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
                 // Nothing - Middle
             } else if (signalValue == _AprilTag.RIGHT) { // Right
                 telemetry.addData("Signal Zone", "Right");
                 telemetry.update();
                 distanceToDrive = 28;
-                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
                 _Rotate.Right(90, power); // Right
             } else { // invalid
                 telemetry.addData("Signal Zone", "Invalid");
                 telemetry.update();
                 distanceToDrive = 4;
-                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+//                setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
 
                 // Nothing - Invalid
             }
 
             sleep(delayMills);
-            turnOffLEDPattern();
+//            turnOffLEDPattern();
 
             _Drive.Backward(distanceToDrive, power);
 
-            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
-            sleep(5000);
+//            setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
+//            sleep(5000);
 
 
             break; // End the program once it has finished
@@ -167,13 +162,21 @@ public class AutoTest01 extends LinearOpMode {
         WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        // Initialize Encoders TODO: Figure out how to code builtin odometers
-        OdometerLeft = WheelFrontLeft;
-        OdometerRight = WheelFrontRight;
+        // Initialize Encoders
+        telemetry.addData("I", "Initializing Encoders");
+        telemetry.update();
 
-        // TODO: Integrate Lift system
+        EncoderLeft = WheelFrontLeft;
+        EncoderRight = WheelFrontRight;
+
+//        // Initialize Lift TODO: Integrate Lift system
+//        telemetry.addData("I", "Initializing Lift");
+//        telemetry.update();
 
         // Initialize Gyro
+        telemetry.addData("I", "Initializing Gyro and PID");
+        telemetry.update();
+
         modernRoboticsI2cGyro = hardwareMap.get(ModernRoboticsI2cGyro.class, "gyro");
 
         telemetry.addData("GC", "Gyro Calibrating. Do Not Move!");
@@ -201,6 +204,9 @@ public class AutoTest01 extends LinearOpMode {
         }
 
         // Initialize AprilTag Camera
+        telemetry.addData("I", "Initializing Webcam");
+        telemetry.update();
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
@@ -208,71 +214,31 @@ public class AutoTest01 extends LinearOpMode {
         _EHGyro.ResetHeadingEH();
         _Rotate = new Rotate(pidRotate, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, telemetry);
 //        _Drive = new DriveWithEncoders(pidDriveDistance, pidDriveStraight, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, OdometerLeft, OdometerRight, telemetry);
-        _Drive = new DriveWithoutEncoders(pidDriveStraight, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, OdometerLeft, OdometerRight, telemetry);
+        _Drive = new DriveWithoutEncoders(pidDriveStraight, _EHGyro, WheelFrontLeft, WheelFrontRight, WheelBackLeft, WheelBackRight, EncoderLeft, EncoderRight, telemetry);
         _AprilTag = new AprilTag(camera, telemetry);
 
-        // REV Blinkin Initialization
-        LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
-        setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//        // REV Blinkin Initialization
+//        telemetry.addData("I", "Initializing Blinkin");
+//        telemetry.update();
+//
+//        LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
+//        setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
-        telemetry.addData("Initialization", "Complete!");
+        // Let the user know initialization is complete.
+        telemetry.addData("I", "Initialization Complete! :D");
         telemetry.update();
 
     }
 
-    //https://ftcforum.usfirst.org/forum/ftc-technology/android-studio/6361-mecanum-wheels-drive-code-example
-    //******************************************************************
-    // Get the inputs from the controller for power [ PRO ]
-    //******************************************************************
-    private void ProMotorControl(double right_stick_y, double right_stick_x, double left_stick_x) {
-        double powerRightY = right_stick_y; // DRIVE : Backward -1 <---> 1 Forward
-        double powerRightX = right_stick_x; // STRAFE:     Left -1 <---> 1 Right
-        double powerLeftX = left_stick_x;   // ROTATE:     Left -1 <---> 1 Right
-
-        double r = Math.hypot(powerRightX, powerRightY);
-        double robotAngle = Math.atan2(powerRightY, powerRightX) - Math.PI / 4;
-        double leftX = powerLeftX;
-        final double v1 = r * Math.cos(robotAngle) + leftX;
-        final double v2 = r * Math.sin(robotAngle) - leftX;
-        final double v3 = r * Math.sin(robotAngle) + leftX;
-        final double v4 = r * Math.cos(robotAngle) - leftX;
-
-        WheelFrontLeft.setPower(v1);
-        WheelFrontRight.setPower(v2);
-        WheelBackLeft.setPower(v3);
-        WheelBackRight.setPower(v4);
-    }
-
-    private void detectColor() {
-        if(color.red()>=color.green() & color.red()>=color.blue()){
-            telemetry.addData("Color","Red");
-//            colorValue = 1;
-            // Turn lights red
-            //Left
-        }
-        if(color.green()>=color.red() & color.green()>=color.blue()){
-            telemetry.addData("Color","Green");
-//            colorValue = 2;
-            // Turn lights green
-            //Park
-        }
-        if(color.blue()>=color.red() & color.blue()>=color.green()){
-            telemetry.addData("Color","Blue");
-//            colorValue = 3;
-            // Turn lights blue
-            //Right
-        }
-    }
-
-    // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
-    // https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf
-    protected void setLEDPattern(RevBlinkinLedDriver.BlinkinPattern setPattern) {
-        LED.setPattern(setPattern);
-    }
-
-    protected void turnOffLEDPattern() {
-        LED.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
-    }
+//    // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
+//    // https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf
+//    protected void setLEDPattern(RevBlinkinLedDriver.BlinkinPattern setPattern) {
+//        LED.setPattern(setPattern);
+//    }
+//
+//    protected void turnOffLEDPattern() {
+//        LED.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+//    }
 
 
 }
