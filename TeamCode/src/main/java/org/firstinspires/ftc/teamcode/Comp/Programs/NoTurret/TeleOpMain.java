@@ -156,6 +156,8 @@ public class TeleOpMain extends OpMode {
       // Slow Controls
       ToggleSlowMode(oneButtonA);
 
+      // haha testing if eric's computer is pushing properly
+
 //      // Lift
 //      setLift(twoButtonY, twoButtonA);
 //
