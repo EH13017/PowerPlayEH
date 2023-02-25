@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.Comp.Programs.NoTurret;
 
-import static android.os.SystemClock.sleep;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 
 @TeleOp(name = "TeleOp Main", group = "Competition")
@@ -22,7 +21,7 @@ public class TeleOpMain extends OpMode {
    private DcMotor WheelBackLeft;
    private DcMotor WheelBackRight;
 
-   // Lift
+   // Lift TODO: Set lift values
    private DcMotorEx LiftLeft;
    private DcMotorEx LiftRight;
    private int heightLift = -1;
@@ -34,19 +33,19 @@ public class TeleOpMain extends OpMode {
    private final double MAX_LIFT_SPEED = 0.75;
    private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT;
 
-
-   double power = 0.6;
-
-//   // Claw
+//   // Claw TODO: Set claw values
 //   private Servo Claw;
 //   private boolean clawIsOpen = true;
 //   private boolean buttonClawIsPressed = false;
-//   private final double CLAW_CLOSE = 0.3;
+//   private final double CLAW_CLOSED = 0.3;
 //   private final double CLAW_OPEN = 0.75;
 
    // SlowMode
-   private boolean slowModeOn = false;
+   private boolean slowModeOn = true;
    private boolean buttonSlowIsPressed = false;
+   private final double SLOW = 0.4;
+   private final double FAST = 0.9;
+   private double percentToSlow = SLOW;
 
 //   // REV Blinkin
 //   private RevBlinkinLedDriver LED;
@@ -54,9 +53,6 @@ public class TeleOpMain extends OpMode {
 
    @Override
    public void init() {
-
-      //Add Drive Mode To Telemetry
-      telemetry.addData("Drive Mode","Slow");
 
       // Initialize Wheels
       telemetry.addData("I", "Initializing Wheels");
@@ -88,6 +84,9 @@ public class TeleOpMain extends OpMode {
       WheelBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
       // Initialize Lift
+      telemetry.addData("I", "Initializing Lift");
+      telemetry.update();
+
       LiftLeft = hardwareMap.get(DcMotorEx.class, "LiftL");
       LiftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
       LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -101,16 +100,22 @@ public class TeleOpMain extends OpMode {
       LiftRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 //      // Initialize Claw
+//      telemetry.addData("I", "Initializing Claw");
+//      telemetry.update();
+//
 //      Claw = hardwareMap.get(Servo.class, "Claw");
 //      Claw.setDirection(Servo.Direction.FORWARD);
-//      OpenClaw();
-//
+//      OpenClaw(); // TODO: Uncomment this
+
 //      // REV Blinkin Initialization
+//      telemetry.addData("I", "Initializing Blinkin");
+//      telemetry.update();
+//
 //      LED = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
 //      setLEDPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
       // Let the user know initialization is complete.
-      telemetry.addData("I", "Initialization Complete!");
+      telemetry.addData("I", "Initialization Complete! :D");
       telemetry.update();
 
    }
@@ -122,23 +127,26 @@ public class TeleOpMain extends OpMode {
        * Gamepad Controls
        */
 
+      // Gamepad 1
       double oneLeftStickYPower = -gamepad1.left_stick_y;
       double oneLeftStickXPower = gamepad1.left_stick_x;
       double oneRightStickXPower = gamepad1.right_stick_x;
       boolean oneButtonA = gamepad1.a;
+
+      // Gamepad 2
       boolean twoButtonA = gamepad2.a;
       boolean twoButtonB = gamepad2.b;
       boolean twoButtonX = gamepad2.x;
       boolean twoButtonY = gamepad2.y;
       float twoTriggerLeft = gamepad2.left_trigger;
       float twoTriggerRight = gamepad2.right_trigger;
-      boolean twoUpPad = gamepad2.dpad_up;
-      boolean twoDownPad = gamepad2.dpad_down;
-      boolean twoLeftPad = gamepad2.dpad_left;
-      boolean twoRightPad = gamepad2.dpad_right;
-      boolean twoBack = gamepad2.back;
+      boolean twoPadUp = gamepad2.dpad_up;
+      boolean twoPadDown = gamepad2.dpad_down;
+      boolean twoPadLeft = gamepad2.dpad_left;
+      boolean twoPadRight = gamepad2.dpad_right;
       boolean twoBumperLeft = gamepad2.left_bumper;
       boolean twoBumperRight = gamepad2.right_bumper;
+      boolean twoBack = gamepad2.back;
       boolean twoStart = gamepad2.start;
 
       /*
@@ -155,16 +163,18 @@ public class TeleOpMain extends OpMode {
       ToggleSlowMode(oneButtonA);
 
       // Lift
-      setLift(twoUpPad, twoDownPad);
+      setLift(twoPadUp, twoPadDown);
+      GetLiftTelemetry();
 
-      getLiftTelemetry();
-
-      // Auto Claw TODO: Set lift values
-//      AutoClaw(twoBack,
+      // Auto Lift TODO: Set lift values
+//      AutoLift(twoBack,
 //               twoButtonA,
 //               twoButtonB,
 //               twoButtonX,
 //               twoButtonY);
+
+      // Claw TODO: Set claw values
+//      ToggleClaw(twoBumperRight);
 
       telemetry.update();
 
@@ -192,31 +202,21 @@ public class TeleOpMain extends OpMode {
       final double v3 = r * Math.sin(robotAngle) + leftX;
       final double v4 = r * Math.cos(robotAngle) - leftX;
 
-      telemetry.addData("Magnus Is Ready","");
+      telemetry.addData("Wheel Front Left",v1* percentToSlow);
+      telemetry.addData("Wheel Front Right",v2* percentToSlow);
+      telemetry.addData("Wheel Back Left",v3* percentToSlow);
+      telemetry.addData("Wheel Back Right",v4* percentToSlow);
 
-
-      telemetry.addData("Wheel Front Left",v1*power);
-      telemetry.addData("Wheel Front Right",v2*power);
-      telemetry.addData("Wheel Back Left",v3*power);
-      telemetry.addData("Wheel Back Right",v4*power);
-
-      WheelFrontLeft.setPower(v1*power);
-      WheelFrontRight.setPower(v2*power);
-      WheelBackLeft.setPower(v3*power);
-      WheelBackRight.setPower(v4*power);
+      WheelFrontLeft.setPower(v1* percentToSlow);
+      WheelFrontRight.setPower(v2* percentToSlow);
+      WheelBackLeft.setPower(v3* percentToSlow);
+      WheelBackRight.setPower(v4* percentToSlow);
 
    }
 
    private void ToggleSlowMode(boolean button) {
       if (button && !buttonSlowIsPressed) {
          buttonSlowIsPressed = true;
-         if (slowModeOn) {
-            power = 0.9;
-            telemetry.addData("Drive Mode","Fast");
-         } else {
-            power = 0.4;
-            telemetry.addData("Drive Mode","Slow");
-         }
          slowModeOn = !slowModeOn;
       }
 
@@ -225,9 +225,11 @@ public class TeleOpMain extends OpMode {
       }
 
       if (slowModeOn) {
-         telemetry.addData("Drive Mode","Fast");
+         percentToSlow = SLOW;
+         telemetry.addData("Drive Mode","Slow: " + SLOW + "% Power");
       } else {
-         telemetry.addData("Drive Mode","Slow");
+         percentToSlow = FAST;
+         telemetry.addData("Drive Mode","Fast: " + FAST + "% Power");
       }
    }
 
@@ -256,7 +258,7 @@ public class TeleOpMain extends OpMode {
       }
    }
 
-   private void autoLift(int height) {
+   private void SetLift(int height) {
       // Set the target position
       LiftLeft.setTargetPosition(height);
       LiftRight.setTargetPosition(height);
@@ -269,31 +271,7 @@ public class TeleOpMain extends OpMode {
 
    }
 
-//   private void ToggleClaw(boolean button) {
-//      if (button && !buttonClawIsPressed) {
-//         buttonClawIsPressed = true;
-//         if (clawIsOpen) {
-//            CloseClaw();
-//         } else {
-//            OpenClaw();
-//         }
-//         clawIsOpen = !clawIsOpen;
-//      }
-//
-//      if (!button) {
-//         buttonClawIsPressed = false;
-//      }
-//
-//      if (clawIsOpen) {
-//         telemetry.addData("CLAW","Open");
-//      } else {
-//         telemetry.addData("CLAW","Close");
-//      }
-//
-//      telemetry.addData("Claw Position", Claw.getPosition());
-//   }
-
-   private void AutoClaw(
+   private void AutoLift(
            boolean backButton,
            boolean A,
            boolean B,
@@ -309,10 +287,11 @@ public class TeleOpMain extends OpMode {
          heightLift = -1; // Black
       }
 
+      // Move to Height
       if (heightLift != -1) {
          do {
-            autoLift(heightLift);
-            getLiftTelemetry();
+            SetLift(heightLift);
+            GetLiftTelemetry();
          } while ((LiftLeft.isBusy() || LiftRight.isBusy()) && !backButton);
 
          //CODE LIGHTS Black
@@ -322,22 +301,34 @@ public class TeleOpMain extends OpMode {
       telemetry.update();
    }
 
-   private void getLiftTelemetry() {
+   private void GetLiftTelemetry() {
       telemetry.addData("LiftL Encoder", LiftLeft.getCurrentPosition());
       telemetry.addData("LiftR Encoder", LiftRight.getCurrentPosition());
    }
 
-
-
-
-//   private void CloseClaw() {
-//      Claw.setPosition(CLAW_CLOSE);
+//   private void ToggleClaw(boolean button) {
+//      if (button && !buttonClawIsPressed) {
+//         buttonClawIsPressed = true;
+//         clawIsOpen = !clawIsOpen;
+//      }
+//
+//      if (!button) {
+//         buttonClawIsPressed = false;
+//      }
+//
+//      if (clawIsOpen) {
+//         OpenClaw();
+//         telemetry.addData("Claw Position","Open: " + CLAW_OPEN);
+//      } else {
+//         CloseClaw();
+//         telemetry.addData("Claw Position","Closed: " + CLAW_CLOSED);
+//      }
 //   }
 //
-//   private void OpenClaw() {
-//      Claw.setPosition(CLAW_OPEN);
-//   }
+//   private void CloseClaw() { Claw.setPosition(CLAW_CLOSED); }
 //
+//   private void OpenClaw() { Claw.setPosition(CLAW_OPEN); }
+
 //   // Here is a file to show how to use the REV Blinkin, along with a complete list of colors:
 //   // https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf
 //   protected void setLEDPattern(RevBlinkinLedDriver.BlinkinPattern setPattern) {
