@@ -130,8 +130,8 @@ public class TeleOpMain extends OpMode {
       boolean twoButtonB = gamepad2.b;
       boolean twoButtonX = gamepad2.x;
       boolean twoButtonY = gamepad2.y;
-      float twoTrigerLeft = gamepad2.left_trigger;
-      float twoTrigerRight = gamepad2.right_trigger;
+      float twoTriggerLeft = gamepad2.left_trigger;
+      float twoTriggerRight = gamepad2.right_trigger;
       boolean twoUpPad = gamepad2.dpad_up;
       boolean twoDownPad = gamepad2.dpad_down;
       boolean twoLeftPad = gamepad2.dpad_left;
