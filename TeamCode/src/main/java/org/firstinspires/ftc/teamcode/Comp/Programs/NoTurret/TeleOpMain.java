@@ -142,12 +142,12 @@ public class TeleOpMain extends OpMode {
       boolean twoButtonB = gamepad2.b;
       boolean twoButtonX = gamepad2.x;
       boolean twoButtonY = gamepad2.y;
-      float twoTriggerLeft = gamepad2.left_trigger;
-      float twoTriggerRight = gamepad2.right_trigger;
       boolean twoPadUp = gamepad2.dpad_up;
       boolean twoPadDown = gamepad2.dpad_down;
       boolean twoPadLeft = gamepad2.dpad_left;
       boolean twoPadRight = gamepad2.dpad_right;
+      float twoTriggerLeft = gamepad2.left_trigger;
+      float twoTriggerRight = gamepad2.right_trigger;
       boolean twoBumperLeft = gamepad2.left_bumper;
       boolean twoBumperRight = gamepad2.right_bumper;
       boolean twoBack = gamepad2.back;
@@ -194,8 +194,8 @@ public class TeleOpMain extends OpMode {
    // Get the inputs from the controller for power [ PRO ]
    //******************************************************************
    private void ProMotorControl(double left_stick_y, double left_stick_x, double right_stick_x) {
-      double powerLeftY = -left_stick_y;  // DRIVE : Backward -1 <---> 1 Forward
-      double powerLeftX = left_stick_x*-1;   // STRAFE:     Left -1 <---> 1 Right
+      double powerLeftY = -left_stick_y;   // DRIVE : Backward -1 <---> 1 Forward
+      double powerLeftX = left_stick_x*-1; // STRAFE:     Left -1 <---> 1 Right
       double powerRightX = -right_stick_x; // ROTATE:     Left -1 <---> 1 Right
 
       double r = Math.hypot(powerLeftX, powerLeftY);
@@ -281,7 +281,7 @@ public class TeleOpMain extends OpMode {
            boolean B,
            boolean X,
            boolean Y
-   ){
+   ) {
       // Height
       if      (A) { heightLift = GROUND; } // Green
       else if (B) { heightLift = LOW;    } // Red
@@ -298,7 +298,7 @@ public class TeleOpMain extends OpMode {
             GetLiftTelemetry();
          } while ((LiftLeft.isBusy() || LiftRight.isBusy()) && !backButton);
 
-         //CODE LIGHTS Black
+         // CODE LIGHTS Black
          heightLift = -1;
       }
 
