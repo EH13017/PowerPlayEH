@@ -19,11 +19,11 @@ public class LiftEncoderTestNoTurret extends OpMode {
     private double heightLiftLeft = -1;
     private double heightLiftRight = -1;
     private final double ENCODER_COUNT_LIFT_60 = 1680; // 60:1, Left
-    private final double ENCODER_COUNT_LIFT_40 = -1120; // 40:1, Right
+    private final double ENCODER_COUNT_LIFT_40 = 1120; // 40:1, Right
     private final double ROTATIONS_GROUND = 0;
-    private final double ROTATIONS_LOW = 1.5; // -1680
-    private final double ROTATIONS_MEDIUM = 2.5; // -2800
-    private final double ROTATIONS_HIGH = 3.5; // -3850
+    private final double ROTATIONS_LOW = 4; //1.5; // 6689 - ~4
+    private final double ROTATIONS_MEDIUM = 7; //2.5; // 11054 - ~6.5
+    private final double ROTATIONS_HIGH = 10; //3.5; // 16576 - ~10
     private final double MAX_LIFT_SPEED = 0.75;
     private final double MAX_LIFT_VELOCITY_LEFT = ENCODER_COUNT_LIFT_60*2; // 60:1, Left
     private final double MAX_LIFT_VELOCITY_RIGHT = ENCODER_COUNT_LIFT_40*2; // 40:1, Right
@@ -172,6 +172,7 @@ public class LiftEncoderTestNoTurret extends OpMode {
         }
 
         LiftManual(up, down);
+        GetLiftTelemetry();
 
         telemetry.update();
     }
