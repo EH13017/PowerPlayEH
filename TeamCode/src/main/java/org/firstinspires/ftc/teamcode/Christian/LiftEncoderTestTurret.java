@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Disabled
-@TeleOp(name = "Lift Encoder Test", group = "Competition")
-public class LiftEncoderTest extends OpMode {
+@TeleOp(name = "Lift Encoder Test - OLD (Turret)", group = "Testing")
+public class LiftEncoderTestTurret extends OpMode {
 
     /*
      * Declare Hardware

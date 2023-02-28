@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 
 @TeleOp(name = "TeleOp Main", group = "Competition")
@@ -27,9 +26,9 @@ public class TeleOpMain extends OpMode {
    private int heightLift = -1;
    private final int ENCODER_COUNT_LIFT = 1120;
    private final int GROUND = 0;
-   private final int LOW = -1750; // -1150;
-   private final int MEDIUM = -2800; // -1800;
-   private final int HIGH = -3850; // -2500;
+   private final int LOW = -1750;
+   private final int MEDIUM = -2800;
+   private final int HIGH = -3850;
    private final double MAX_LIFT_SPEED = 0.75;
    private final int MAX_LIFT_VELOCITY = ENCODER_COUNT_LIFT;
 
@@ -37,8 +36,8 @@ public class TeleOpMain extends OpMode {
 //   private Servo Claw;
 //   private boolean clawIsOpen = true;
 //   private boolean buttonClawIsPressed = false;
-//   private final double CLAW_CLOSED = 0.3;
-//   private final double CLAW_OPEN = 0.75;
+//   private final double CLAW_OPEN = 0.0;
+//   private final double CLAW_CLOSED = 0.35;
 
    // SlowMode
    private boolean slowModeOn = true;
@@ -96,7 +95,7 @@ public class TeleOpMain extends OpMode {
 
       LiftRight = hardwareMap.get(DcMotorEx.class, "LiftR");
       LiftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-      LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+      LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
       LiftRight.setDirection(DcMotorSimple.Direction.REVERSE);
       LiftRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -167,11 +166,11 @@ public class TeleOpMain extends OpMode {
       ToggleSlowMode(oneButtonA);
 
       // Lift Controls
-      setLift(twoPadUp, twoPadDown);
+      LiftManual(twoPadUp, twoPadDown);
       GetLiftTelemetry();
 
 //      // Auto Lift Controls TODO: Set lift values
-//      AutoLift(twoBack,
+//      LiftAuto(twoBack,
 //               twoButtonA,
 //               twoButtonB,
 //               twoButtonX,
@@ -222,11 +221,7 @@ public class TeleOpMain extends OpMode {
       if (button && !buttonSlowIsPressed) {
          buttonSlowIsPressed = true;
          slowModeOn = !slowModeOn;
-      }
-
-      if (!button) {
-         buttonSlowIsPressed = false;
-      }
+      } if (!button) {  buttonSlowIsPressed = false;  }
 
       if (slowModeOn) {
          percentToSlow = SLOW;
@@ -237,7 +232,7 @@ public class TeleOpMain extends OpMode {
       }
    }
 
-   private void setLift(boolean up,boolean down) {
+   private void LiftManual(boolean up, boolean down) {
 
       LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
       LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -262,7 +257,7 @@ public class TeleOpMain extends OpMode {
       }
    }
 
-   private void SetLift(int height) {
+   private void LiftMove(int height) {
       // Set the target position
       LiftLeft.setTargetPosition(height);
       LiftRight.setTargetPosition(height);
@@ -275,7 +270,7 @@ public class TeleOpMain extends OpMode {
 
    }
 
-   private void AutoLift(
+   private void LiftAuto(
            boolean backButton,
            boolean A,
            boolean B,
@@ -294,7 +289,7 @@ public class TeleOpMain extends OpMode {
       // Move to Height
       if (heightLift != -1) {
          do {
-            SetLift(heightLift);
+            LiftMove(heightLift);
             GetLiftTelemetry();
          } while ((LiftLeft.isBusy() || LiftRight.isBusy()) && !backButton);
 
@@ -314,11 +309,7 @@ public class TeleOpMain extends OpMode {
 //      if (button && !buttonClawIsPressed) {
 //         buttonClawIsPressed = true;
 //         clawIsOpen = !clawIsOpen;
-//      }
-//
-//      if (!button) {
-//         buttonClawIsPressed = false;
-//      }
+//      } if (!button) { buttonClawIsPressed = false; }
 //
 //      if (clawIsOpen) {
 //         OpenClaw();
@@ -328,6 +319,8 @@ public class TeleOpMain extends OpMode {
 //         telemetry.addData("Claw Position","Closed: " + CLAW_CLOSED);
 //      }
 //   }
+//
+//   private void ZeroClaw() { Claw.setPosition(0.0); }
 //
 //   private void CloseClaw() { Claw.setPosition(CLAW_CLOSED); }
 //

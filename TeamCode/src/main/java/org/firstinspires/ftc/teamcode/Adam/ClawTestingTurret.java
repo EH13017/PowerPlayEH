@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Disabled
-@TeleOp(name = "Claw Testing", group = "Testing")
-public class ClawTesting extends OpMode {
+@TeleOp(name = "Claw Testing - OLD (Turret)", group = "Testing")
+public class ClawTestingTurret extends OpMode {
 
     /*
      * Declare Hardware
