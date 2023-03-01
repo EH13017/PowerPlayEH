@@ -161,21 +161,16 @@ public class LiftEncoderTestNoTurret extends OpMode {
 
         // Move to Height
         if (heightLiftLeft != -1 && heightLiftRight != -1) {
-            do {
-                LiftMove(heightLiftLeft, heightLiftRight);
-            } while ((LiftLeft.isBusy() || LiftRight.isBusy()) && !backButton && (!up && !down));
-
-            LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            // CODE LIGHTS Black
-            heightLiftLeft = -1;
-            heightLiftRight = -1;
+            LiftMove(heightLiftLeft, heightLiftRight);
+        } else {
+            LiftManual(up, down);
+            GetLiftTelemetry();
         }
 
-        LiftManual(up, down);
-        GetLiftTelemetry();
-
+        if ((!LiftLeft.isBusy() && !LiftRight.isBusy()) || backButton || up || down) {
+            heightLiftLeft = -1; // TODO: Test this
+            heightLiftRight = -1;
+        }
         telemetry.update();
     }
 
