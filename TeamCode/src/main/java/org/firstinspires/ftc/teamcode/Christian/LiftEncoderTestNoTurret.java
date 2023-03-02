@@ -16,15 +16,15 @@ public class LiftEncoderTestNoTurret extends OpMode {
     // Lift TODO: Set lift values
     private DcMotorEx LiftLeft;
     private DcMotorEx LiftRight;
+    private boolean changedToManualMode = true;
     private double heightLiftLeft = -1;
     private double heightLiftRight = -1;
-//    private final double ENCODER_COUNT_LIFT_LEFT = 1680; // 60:1, Left
     private final double ENCODER_COUNT_LIFT_LEFT = 1120; // 40:1, Left
     private final double ENCODER_COUNT_LIFT_RIGHT = 1120; // 40:1, Right
     private final double ROTATIONS_GROUND = 0;
-    private final double ROTATIONS_LOW = 4; //1.5; // 6689 - ~4
-    private final double ROTATIONS_MEDIUM = 7; //2.5; // 11054 - ~6.5
-    private final double ROTATIONS_HIGH = 9; //3.5; // 16576 - ~10
+    private final double ROTATIONS_LOW = 4;
+    private final double ROTATIONS_MEDIUM = 6.5;
+    private final double ROTATIONS_HIGH = 9;
     private final double MAX_LIFT_SPEED = 0.75;
     private final double ROTATIONS_PER_SECOND = 10;
     private final double MAX_LIFT_VELOCITY_LEFT = ENCODER_COUNT_LIFT_LEFT * ROTATIONS_PER_SECOND; // 40:1, Left
@@ -82,7 +82,7 @@ public class LiftEncoderTestNoTurret extends OpMode {
 
         // Lift
 //        LiftManual(twoUpPad, twoDownPad);
-        LiftAuto(twoBack,
+        LiftMove(twoBack,
                  twoButtonA,
                  twoButtonB,
                  twoButtonX,
@@ -120,7 +120,7 @@ public class LiftEncoderTestNoTurret extends OpMode {
         }
     }
 
-    private void LiftMove(double heightLeft, double heightRight) {
+    private void LiftAuto(double heightLeft, double heightRight) {
         // Set the target position
         LiftLeft.setTargetPosition((int)heightLeft);
         LiftRight.setTargetPosition((int)heightRight);
@@ -130,9 +130,6 @@ public class LiftEncoderTestNoTurret extends OpMode {
         // Get the motor moving by setting the max velocity in ticks per second
         LiftLeft.setVelocity(MAX_LIFT_VELOCITY_LEFT);
         LiftRight.setVelocity(MAX_LIFT_VELOCITY_RIGHT);
-
-        GetLiftTelemetry();
-        telemetry.update();
     }
 
     private void SetLiftHeights(double rotations) {
@@ -140,7 +137,7 @@ public class LiftEncoderTestNoTurret extends OpMode {
         heightLiftRight = ENCODER_COUNT_LIFT_RIGHT * rotations;
     }
 
-    private void LiftAuto(
+    private void LiftMove(
             boolean backButton,
             boolean A,
             boolean B,
@@ -154,23 +151,25 @@ public class LiftEncoderTestNoTurret extends OpMode {
         else if (B) { SetLiftHeights(ROTATIONS_LOW);    } // Red
         else if (X) { SetLiftHeights(ROTATIONS_MEDIUM); } // Blue
         else if (Y) { SetLiftHeights(ROTATIONS_HIGH);   } // Yellow
-        else if (backButton && (heightLiftLeft != -1 && heightLiftRight != -1)) {
+        else if ((backButton && (heightLiftLeft != -1 && heightLiftRight != -1)) || (!LiftLeft.isBusy() && !LiftRight.isBusy())) {
             heightLiftLeft = -1; // Black
             heightLiftRight = -1; // Black
         }
 
         // Move to Height
         if (heightLiftLeft != -1 && heightLiftRight != -1) {
-            LiftMove(heightLiftLeft, heightLiftRight);
+            changedToManualMode = false;
+            LiftAuto(heightLiftLeft, heightLiftRight);
         } else {
+            if (!changedToManualMode) {
+                LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                changedToManualMode = true;
+            }
             LiftManual(up, down);
-            GetLiftTelemetry();
         }
 
-        if ((!LiftLeft.isBusy() && !LiftRight.isBusy()) || backButton || up || down) {
-            heightLiftLeft = -1; // TODO: Test this
-            heightLiftRight = -1;
-        }
+        GetLiftTelemetry();
         telemetry.update();
     }
 

@@ -20,7 +20,7 @@ public class ClawTestingNoTurret extends OpMode {
     private boolean buttonIncrementIsPressed = false;
     private boolean buttonDecrementIsPressed = false;
     private final double CLAW_OPEN = 0.0;
-    private final double CLAW_CLOSED = 0.35;
+    private final double CLAW_CLOSED = 0.55; //0.35;
 
 
 
@@ -76,7 +76,6 @@ public class ClawTestingNoTurret extends OpMode {
 
         // Claw Controls
         ToggleClaw(twoBumperRight);
-
         IncrementClawPosition(twoPadUp, twoPadDown);
 
         telemetry.update();
