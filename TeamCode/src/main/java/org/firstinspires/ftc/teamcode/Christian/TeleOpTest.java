@@ -20,9 +20,9 @@ public class TeleOpTest extends OpMode {
    private DcMotor WheelFrontRight;
    private DcMotor WheelBackLeft;
    private DcMotor WheelBackRight;
-   private boolean sineModeOn = true;
+   private boolean sineDriveOn = true;
    private boolean buttonSineIsPressed = false;
-   private double modifyBySine = Math.cos(Math.PI/4);
+   private double modifyBySine = Math.sin(Math.PI/4);
 
    // Lift
    private DcMotorEx LiftLeft;
@@ -172,7 +172,7 @@ public class TeleOpTest extends OpMode {
 
       // Drive Controls
       ProMotorControl(oneLeftStickYPower, oneLeftStickXPower, oneRightStickXPower);
-//      ToggleSineDrive(oneButtonB);
+      ToggleSineDrive(oneButtonB);
 
       // Slow Controls
       ToggleSlowMode(oneButtonA);
@@ -244,11 +244,11 @@ public class TeleOpTest extends OpMode {
    private void ToggleSineDrive(boolean button) {
       if (button && !buttonSineIsPressed) {
          buttonSineIsPressed = true;
-         sineModeOn = !sineModeOn;
+         sineDriveOn = !sineDriveOn;
       } if (!button) {  buttonSineIsPressed = false;  }
 
-      if (sineModeOn) {
-         modifyBySine = Math.cos(Math.PI/4);
+      if (sineDriveOn) {
+         modifyBySine = Math.sin(Math.PI/4);
          telemetry.addData("Sine Mode","ON");
       } else {
          modifyBySine = 1;
