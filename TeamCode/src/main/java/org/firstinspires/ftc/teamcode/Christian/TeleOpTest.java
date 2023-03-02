@@ -249,10 +249,10 @@ public class TeleOpTest extends OpMode {
 
       if (sineDriveOn) {
          modifyBySine = Math.sin(Math.PI/4);
-         telemetry.addData("Sine Mode","ON");
+         telemetry.addData("Sine Drive","ON");
       } else {
          modifyBySine = 1;
-         telemetry.addData("Sine Mode","OFF");
+         telemetry.addData("Sine Drive","OFF");
       }
    }
 
