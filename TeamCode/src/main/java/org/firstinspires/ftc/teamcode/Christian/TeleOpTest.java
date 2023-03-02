@@ -177,7 +177,6 @@ public class TeleOpTest extends OpMode {
       // Slow Controls
       ToggleSlowMode(oneButtonA);
 
-
       // Lift Controls
       LiftMove(twoBack,
               twoButtonA,
@@ -312,7 +311,7 @@ public class TeleOpTest extends OpMode {
            boolean up,
            boolean down
    ) {
-      // Height
+      // Set Height
       if      (A) { SetLiftHeights(ROTATIONS_GROUND); } // Green
       else if (B) { SetLiftHeights(ROTATIONS_LOW);    } // Red
       else if (X) { SetLiftHeights(ROTATIONS_MEDIUM); } // Blue
@@ -322,18 +321,18 @@ public class TeleOpTest extends OpMode {
          heightLiftRight = -1; // Black
       }
 
-      // Move to Height
+      // Automatically Move to Height
       if (heightLiftLeft != -1 && heightLiftRight != -1) {
          changedToManualMode = false;
          LiftAuto(heightLiftLeft, heightLiftRight);
-      } else {
+      } else { // Manually Move to Height
          if (!changedToManualMode) {
             LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             changedToManualMode = true;
          }
-//         LiftManualSpeed(up, down);
-         LiftManualVelocity(up, down);
+//         LiftManualSpeed(up, down); // Uses a percent of the motor's power - IS NOT CONSISTENT
+         LiftManualVelocity(up, down); // Uses PID to maintain a certain rpm (in ticks/second) - IS VERY CONSISTENT
       }
 
       GetLiftTelemetry();
