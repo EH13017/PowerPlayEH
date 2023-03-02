@@ -46,7 +46,7 @@ public class TeleOpTest extends OpMode {
    private boolean buttonIncrementIsPressed = false;
    private boolean buttonDecrementIsPressed = false;
    private final double CLAW_OPEN = 0.0;
-   private final double CLAW_CLOSED = 0.55; //0.35;
+   private final double CLAW_CLOSED = 0.55;
 
    // SlowMode
    private boolean slowModeOn = true;
@@ -239,22 +239,31 @@ public class TeleOpTest extends OpMode {
       }
    }
 
-   private void LiftManual(boolean up, boolean down) {
+   private void LiftManualSpeed(boolean up, boolean down) {
       if (up) {
-//         LiftLeft.setPower(MAX_LIFT_SPEED);
-//         LiftRight.setPower(-MAX_LIFT_SPEED);
+         LiftLeft.setPower(MAX_LIFT_SPEED);
+         LiftRight.setPower(-MAX_LIFT_SPEED);
+      }
+      else if (down) {
+         LiftLeft.setPower(-MAX_LIFT_SPEED);
+         LiftRight.setPower(MAX_LIFT_SPEED);
+      }
+      else {
+         LiftLeft.setPower(0);
+         LiftRight.setPower(0);
+      }
+   }
+
+   private void LiftManualVelocity(boolean up, boolean down) {
+      if (up) {
          LiftLeft.setVelocity(MAX_LIFT_VELOCITY_LEFT);
          LiftRight.setVelocity(MAX_LIFT_VELOCITY_RIGHT);
       }
       else if (down) {
-//         LiftLeft.setPower(-MAX_LIFT_SPEED);
-//         LiftRight.setPower(MAX_LIFT_SPEED);
          LiftLeft.setVelocity(-MAX_LIFT_VELOCITY_LEFT);
          LiftRight.setVelocity(-MAX_LIFT_VELOCITY_RIGHT);
       }
       else {
-//         LiftLeft.setPower(0);
-//         LiftRight.setPower(0);
          LiftLeft.setVelocity(0);
          LiftRight.setVelocity(0);
       }
@@ -306,7 +315,8 @@ public class TeleOpTest extends OpMode {
             LiftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             changedToManualMode = true;
          }
-         LiftManual(up, down);
+//         LiftManualSpeed(up, down);
+         LiftManualVelocity(up, down);
       }
 
       GetLiftTelemetry();
