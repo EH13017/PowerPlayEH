@@ -20,6 +20,9 @@ public class TeleOpTest extends OpMode {
    private DcMotor WheelFrontRight;
    private DcMotor WheelBackLeft;
    private DcMotor WheelBackRight;
+   private boolean sineModeOn = true;
+   private boolean buttonSineIsPressed = false;
+   private double modifyBySine = Math.cos(Math.PI/4);
 
    // Lift
    private DcMotorEx LiftLeft;
@@ -43,8 +46,6 @@ public class TeleOpTest extends OpMode {
    private boolean clawIsOpen = true;
    private boolean buttonClawIsPressed = false;
    private double clawPosition = 0.0;
-   private boolean buttonIncrementIsPressed = false;
-   private boolean buttonDecrementIsPressed = false;
    private final double CLAW_OPEN = 0.0;
    private final double CLAW_CLOSED = 0.55;
 
@@ -52,7 +53,7 @@ public class TeleOpTest extends OpMode {
    private boolean slowModeOn = true;
    private boolean buttonSlowIsPressed = false;
    private final double SLOW = 0.4;
-   private final double FAST = 0.9;
+   private final double FAST = 1.0; //0.9;
    private double percentToSlow = SLOW;
 
 //   // REV Blinkin
@@ -144,6 +145,7 @@ public class TeleOpTest extends OpMode {
       double oneLeftStickXPower = gamepad1.left_stick_x;
       double oneRightStickXPower = gamepad1.right_stick_x;
       boolean oneButtonA = gamepad1.a;
+      boolean oneButtonB = gamepad1.b;
 
       // Gamepad 2
       boolean twoButtonA = gamepad2.a;
@@ -170,6 +172,7 @@ public class TeleOpTest extends OpMode {
 
       // Drive Controls
       ProMotorControl(oneLeftStickYPower, oneLeftStickXPower, oneRightStickXPower);
+//      ToggleSineDrive(oneButtonB);
 
       // Slow Controls
       ToggleSlowMode(oneButtonA);
@@ -207,21 +210,20 @@ public class TeleOpTest extends OpMode {
       double r = Math.hypot(powerLeftX, powerLeftY);
       double robotAngle = Math.atan2(powerLeftY, powerLeftX) - Math.PI / 4;
       double leftX = powerRightX;
-      final double v1 = r * Math.cos(robotAngle) + leftX;
-      final double v2 = r * Math.sin(robotAngle) - leftX;
-      final double v3 = r * Math.sin(robotAngle) + leftX;
-      final double v4 = r * Math.cos(robotAngle) - leftX;
-
-      telemetry.addData("Wheel Front Left",v1* percentToSlow);
-      telemetry.addData("Wheel Front Right",v2* percentToSlow);
-      telemetry.addData("Wheel Back Left",v3* percentToSlow);
-      telemetry.addData("Wheel Back Right",v4* percentToSlow);
+      final double v1 = r * Math.cos(robotAngle) / modifyBySine + leftX;
+      final double v2 = r * Math.sin(robotAngle) / modifyBySine - leftX;
+      final double v3 = r * Math.sin(robotAngle) / modifyBySine + leftX;
+      final double v4 = r * Math.cos(robotAngle) / modifyBySine - leftX;
 
       WheelFrontLeft.setPower(v1* percentToSlow);
       WheelFrontRight.setPower(v2* percentToSlow);
       WheelBackLeft.setPower(v3* percentToSlow);
       WheelBackRight.setPower(v4* percentToSlow);
 
+      telemetry.addData("Wheel Front Left",v1* percentToSlow);
+      telemetry.addData("Wheel Front Right",v2* percentToSlow);
+      telemetry.addData("Wheel Back Left",v3* percentToSlow);
+      telemetry.addData("Wheel Back Right",v4* percentToSlow);
    }
 
    private void ToggleSlowMode(boolean button) {
@@ -236,6 +238,21 @@ public class TeleOpTest extends OpMode {
       } else {
          percentToSlow = FAST;
          telemetry.addData("Drive Mode","Fast: " + FAST + "% Power");
+      }
+   }
+
+   private void ToggleSineDrive(boolean button) {
+      if (button && !buttonSineIsPressed) {
+         buttonSineIsPressed = true;
+         sineModeOn = !sineModeOn;
+      } if (!button) {  buttonSineIsPressed = false;  }
+
+      if (sineModeOn) {
+         modifyBySine = Math.cos(Math.PI/4);
+         telemetry.addData("Sine Mode","ON");
+      } else {
+         modifyBySine = 1;
+         telemetry.addData("Sine Mode","OFF");
       }
    }
 

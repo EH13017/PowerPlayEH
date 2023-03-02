@@ -190,6 +190,7 @@ public class AutoTest01 extends LinearOpMode {
         EncoderLeft = WheelFrontLeft;
         EncoderRight = WheelFrontRight;
 
+
 //        // Initialize Lift TODO: Integrate Lift system
 //        telemetry.addData("I", "Initializing Lift");
 //        telemetry.update();
