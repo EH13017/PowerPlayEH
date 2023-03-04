@@ -37,9 +37,12 @@ public class TeleOpTest extends OpMode {
    private final double ROTATIONS_MEDIUM = 6.5;
    private final double ROTATIONS_HIGH = 9;
    private final double MAX_LIFT_SPEED = 0.75;
-   private final double ROTATIONS_PER_SECOND = 10;
-   private final double MAX_LIFT_VELOCITY_LEFT = ENCODER_COUNT_LIFT_LEFT * ROTATIONS_PER_SECOND; // 40:1, Left
-   private final double MAX_LIFT_VELOCITY_RIGHT = ENCODER_COUNT_LIFT_RIGHT * ROTATIONS_PER_SECOND; // 40:1, Right
+
+   // Lift Positions
+   private double currentLiftLeftPosition = 0;
+   private double currentLiftRightPosition = 0;
+   private double currentLiftLeftRotations = 0;
+   private double currentLiftRightRotations = 0;
 
    // Claw
    private Servo Claw;
@@ -49,12 +52,21 @@ public class TeleOpTest extends OpMode {
    private final double CLAW_OPEN = 0.0;
    private final double CLAW_CLOSED = 0.55;
 
-   // SlowMode
-   private boolean slowModeOn = true;
-   private boolean buttonSlowIsPressed = false;
-   private final double SLOW = 0.4;
-   private final double FAST = 1.0; //0.9;
-   private double percentToSlow = SLOW;
+   // SlowMode Drive
+   private boolean slowModeDriveOn = true;
+   private boolean buttonSlowDriveIsPressed = false;
+   private final double SLOW_DRIVE = 0.4;
+   private final double FAST_DRIVE = 1.0; //0.9;
+   private double percentToSlowDrive = SLOW_DRIVE;
+
+   // SlowMode Lift
+   private boolean slowModeLiftOn = true;
+   private boolean buttonSlowLiftIsPressed = false;
+   private final double SLOW_LIFT = 1;
+   private final double FAST_LIFT = 10;
+   private double rotationsPerSecond = SLOW_LIFT;
+   private double maxLiftVelocityLeft = ENCODER_COUNT_LIFT_LEFT * rotationsPerSecond; // 40:1, Left
+   private double maxLiftVelocityRight = ENCODER_COUNT_LIFT_RIGHT * rotationsPerSecond; // 40:1, Right
 
 //   // REV Blinkin
 //   private RevBlinkinLedDriver LED;
@@ -175,7 +187,8 @@ public class TeleOpTest extends OpMode {
       ToggleSineDrive(oneButtonB);
 
       // Slow Controls
-      ToggleSlowMode(oneButtonA);
+      ToggleSlowModeDrive(oneButtonA);
+      ToggleSlowModeLift(twoBumperLeft);
 
       // Lift Controls
       LiftMove(twoBack,
@@ -214,30 +227,47 @@ public class TeleOpTest extends OpMode {
       final double v3 = r * Math.sin(robotAngle) / modifyBySine + leftX;
       final double v4 = r * Math.cos(robotAngle) / modifyBySine - leftX;
 
-      WheelFrontLeft.setPower(v1* percentToSlow);
-      WheelFrontRight.setPower(v2* percentToSlow);
-      WheelBackLeft.setPower(v3* percentToSlow);
-      WheelBackRight.setPower(v4* percentToSlow);
+      WheelFrontLeft.setPower(v1* percentToSlowDrive);
+      WheelFrontRight.setPower(v2* percentToSlowDrive);
+      WheelBackLeft.setPower(v3* percentToSlowDrive);
+      WheelBackRight.setPower(v4* percentToSlowDrive);
 
-      telemetry.addData("Wheel Front Left",v1* percentToSlow);
-      telemetry.addData("Wheel Front Right",v2* percentToSlow);
-      telemetry.addData("Wheel Back Left",v3* percentToSlow);
-      telemetry.addData("Wheel Back Right",v4* percentToSlow);
+      telemetry.addData("Wheel Front Left",v1* percentToSlowDrive);
+      telemetry.addData("Wheel Front Right",v2* percentToSlowDrive);
+      telemetry.addData("Wheel Back Left",v3* percentToSlowDrive);
+      telemetry.addData("Wheel Back Right",v4* percentToSlowDrive);
    }
 
-   private void ToggleSlowMode(boolean button) {
-      if (button && !buttonSlowIsPressed) {
-         buttonSlowIsPressed = true;
-         slowModeOn = !slowModeOn;
-      } if (!button) {  buttonSlowIsPressed = false;  }
+   private void ToggleSlowModeDrive(boolean button) {
+      if (button && !buttonSlowDriveIsPressed) {
+         buttonSlowDriveIsPressed = true;
+         slowModeDriveOn = !slowModeDriveOn;
+      } if (!button) {  buttonSlowDriveIsPressed = false;  }
 
-      if (slowModeOn) {
-         percentToSlow = SLOW;
-         telemetry.addData("Drive Mode","Slow: " + SLOW + "% Power");
+      if (slowModeDriveOn) {
+         percentToSlowDrive = SLOW_DRIVE;
+         telemetry.addData("Drive Mode","Slow: " + SLOW_DRIVE + "% Power");
       } else {
-         percentToSlow = FAST;
-         telemetry.addData("Drive Mode","Fast: " + FAST + "% Power");
+         percentToSlowDrive = FAST_DRIVE;
+         telemetry.addData("Drive Mode","Fast: " + FAST_DRIVE + "% Power");
       }
+   }
+
+   private void ToggleSlowModeLift(boolean button) {
+      if (button && !buttonSlowLiftIsPressed) {
+         buttonSlowLiftIsPressed = true;
+         slowModeLiftOn = !slowModeLiftOn;
+      } if (!button) {  buttonSlowLiftIsPressed = false;  }
+
+      if (slowModeLiftOn) {
+         rotationsPerSecond = SLOW_LIFT;
+         telemetry.addData("Lift Mode","Slow: " + SLOW_LIFT + " rotations/sec.");
+      } else {
+         rotationsPerSecond = FAST_LIFT;
+         telemetry.addData("Lift Mode","Fast: " + FAST_LIFT + " rotations/sec.");
+      }
+
+      UpdateLiftVelocities();
    }
 
    private void ToggleSineDrive(boolean button) {
@@ -256,11 +286,15 @@ public class TeleOpTest extends OpMode {
    }
 
    private void LiftManualSpeed(boolean up, boolean down) {
-      if (up) {
+      if (up &&
+              currentLiftLeftRotations < ROTATIONS_HIGH &&
+              currentLiftRightRotations < ROTATIONS_HIGH) {
          LiftLeft.setPower(MAX_LIFT_SPEED);
          LiftRight.setPower(-MAX_LIFT_SPEED);
       }
-      else if (down) {
+      else if (down &&
+              currentLiftLeftRotations > ROTATIONS_GROUND &&
+              currentLiftRightRotations > ROTATIONS_GROUND) {
          LiftLeft.setPower(-MAX_LIFT_SPEED);
          LiftRight.setPower(MAX_LIFT_SPEED);
       }
@@ -271,13 +305,17 @@ public class TeleOpTest extends OpMode {
    }
 
    private void LiftManualVelocity(boolean up, boolean down) {
-      if (up) {
-         LiftLeft.setVelocity(MAX_LIFT_VELOCITY_LEFT);
-         LiftRight.setVelocity(MAX_LIFT_VELOCITY_RIGHT);
+      if (up &&
+          currentLiftLeftRotations < ROTATIONS_HIGH &&
+          currentLiftRightRotations < ROTATIONS_HIGH) {
+         LiftLeft.setVelocity(maxLiftVelocityLeft);
+         LiftRight.setVelocity(maxLiftVelocityRight);
       }
-      else if (down) {
-         LiftLeft.setVelocity(-MAX_LIFT_VELOCITY_LEFT);
-         LiftRight.setVelocity(-MAX_LIFT_VELOCITY_RIGHT);
+      else if (down &&
+               currentLiftLeftRotations > ROTATIONS_GROUND &&
+               currentLiftRightRotations > ROTATIONS_GROUND) {
+         LiftLeft.setVelocity(-maxLiftVelocityLeft);
+         LiftRight.setVelocity(-maxLiftVelocityRight);
       }
       else {
          LiftLeft.setVelocity(0);
@@ -285,17 +323,17 @@ public class TeleOpTest extends OpMode {
       }
    }
 
-   private void LiftAuto(double heightLeft, double heightRight) {
-      // Set the target position
-      LiftLeft.setTargetPosition((int)heightLeft);
-      LiftRight.setTargetPosition((int)heightRight);
-      // Switch to RUN_TO_POSITION mode
-      LiftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      LiftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      // Get the motor moving by setting the max velocity in ticks per second
-      LiftLeft.setVelocity(MAX_LIFT_VELOCITY_LEFT);
-      LiftRight.setVelocity(MAX_LIFT_VELOCITY_RIGHT);
-   }
+//   private void LiftAuto(double heightLeft, double heightRight) {
+//      // Set the target position
+//      LiftLeft.setTargetPosition((int)heightLeft);
+//      LiftRight.setTargetPosition((int)heightRight);
+//      // Switch to RUN_TO_POSITION mode
+//      LiftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//      LiftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//      // Get the motor moving by setting the max velocity in ticks per second
+//      LiftLeft.setVelocity(MAX_LIFT_VELOCITY_LEFT);
+//      LiftRight.setVelocity(MAX_LIFT_VELOCITY_RIGHT);
+//   }
 
    private void SetLiftHeights(double rotations) {
       heightLiftLeft = ENCODER_COUNT_LIFT_LEFT * rotations;
@@ -324,7 +362,7 @@ public class TeleOpTest extends OpMode {
       // Automatically Move to Height
       if (heightLiftLeft != -1 && heightLiftRight != -1) {
          changedToManualMode = false;
-         LiftAuto(heightLiftLeft, heightLiftRight);
+//         LiftAuto(heightLiftLeft, heightLiftRight);
       } else { // Manually Move to Height
          if (!changedToManualMode) {
             LiftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -338,9 +376,24 @@ public class TeleOpTest extends OpMode {
       GetLiftTelemetry();
    }
 
+   private void UpdateLiftVelocities() {
+      maxLiftVelocityLeft = ENCODER_COUNT_LIFT_LEFT*rotationsPerSecond;
+      maxLiftVelocityRight = ENCODER_COUNT_LIFT_RIGHT*rotationsPerSecond;
+   }
+
+   private void UpdateLiftPositions() {
+      currentLiftLeftPosition = LiftLeft.getCurrentPosition();
+      currentLiftRightPosition = LiftRight.getCurrentPosition();
+      currentLiftLeftRotations = currentLiftLeftPosition/ENCODER_COUNT_LIFT_LEFT;
+      currentLiftRightRotations = currentLiftRightPosition/ENCODER_COUNT_LIFT_RIGHT;
+   }
+
    private void GetLiftTelemetry() {
-      telemetry.addData("LiftL Encoder", LiftLeft.getCurrentPosition());
-      telemetry.addData("LiftR Encoder", LiftRight.getCurrentPosition());
+      UpdateLiftPositions();
+      telemetry.addData("LiftL Encoder", currentLiftLeftPosition);
+      telemetry.addData("LiftR Encoder", currentLiftRightPosition);
+      telemetry.addData("LiftL Rotations", currentLiftLeftRotations);
+      telemetry.addData("LiftR Rotations", currentLiftRightRotations);
    }
 
    private void ToggleClaw(boolean button) {
